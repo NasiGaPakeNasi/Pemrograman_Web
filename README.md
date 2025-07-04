@@ -1,57 +1,125 @@
-## 🚀 Panduan Kontribusi
 
-Panduan ini dibuat khusus untuk anggota kelompok yang masih baru dengan Git dan GitHub. Kita akan menggunakan **Visual Studio Code** agar prosesnya lebih mudah dan visual.
+# ☕ Warkop Bejo - Website Pemesanan Kopi Sederhana
 
-### Yang Perlu Disiapkan (Hanya sekali di awal)
+Selamat datang di markas besar proyek Website Warkop Bejo! Ini adalah sebuah proyek untuk membangun aplikasi pemesanan kopi online yang fungsional dan modern dari awal menggunakan PHP, MySQL, dan JavaScript.
 
-1.  **Install Git**: Pastikan Git sudah ter-install di komputermu. Download di [git-scm.com](https://git-scm.com/downloads/).
-2.  **Install Visual Studio Code**: Ini adalah editor kode kita. Download di [code.visualstudio.com](https://code.visualstudio.com/download).
-3.  **Login GitHub di VS Code**:
-    * Buka VS Code.
-    * Klik ikon **Accounts** di pojok kiri bawah (bentuknya seperti orang).
-    * Pilih "Sign in with GitHub to use GitHub Copilot and more..." dan ikuti proses login di browser.
+![Screenshot Halaman Utama](public/images/warkop-bejo.png)
 
-### Langkah-Langkah Mengerjakan Proyek
+---
 
-#### 1. Clone Repository (Mengambil Proyek dari GitHub ke Komputer)
+## ✨ Fitur Utama
 
-Ini hanya perlu dilakukan **satu kali** di awal.
+* **Otentikasi Pengguna:** Sistem pendaftaran dan login yang aman.
+* **Katalog Produk:** Tampilan menu produk yang dinamis langsung dari database.
+* **Keranjang Belanja:** Fungsi untuk menambah, mengubah, dan menghapus pesanan.
+* **Dashboard Pengguna:** Halaman profil untuk melihat data diri dan riwayat pembelian.
 
-1.  Buka halaman repository ini di GitHub.
-2.  Klik tombol hijau **`< > Code`**.
-3.  Salin link **HTTPS** yang muncul. (Contoh: `https://github.com/NasiGakPakeNasi/Pemrograman_Web.git`)
-4.  Buka VS Code.
-5.  Tekan `Ctrl+Shift+P` untuk membuka Command Palette, lalu ketik `Git: Clone` dan tekan Enter.
-6.  Paste link yang tadi kamu salin, lalu tekan Enter.
-7.  Pilih lokasi folder di komputermu untuk menyimpan proyek ini.
-8.  Setelah selesai, klik **"Open Repository"**.
+---
 
-#### 2. Mengambil Update Terbaru dari Teman (`Pull`)
+## 🛠️ Teknologi yang Digunakan
 
-**PENTING:** Lakukan ini **setiap kali kamu akan mulai mengerjakan sesuatu** agar kodemu selalu yang paling baru dan tidak bentrok dengan pekerjaan temanmu.
+* **Frontend:** HTML, CSS, JavaScript
+* **Backend:** PHP
+* **Database:** MySQL
+* **Server Lokal:** XAMPP
 
-1.  Buka proyek ini di VS Code.
-2.  Lihat di pojok kiri bawah layar, ada tombol **Sync Changes** (biasanya ada ikon awan atau panah melingkar).
-3.  **Klik tombol itu**. VS Code akan otomatis mengambil (`pull`) perubahan terbaru dari GitHub dan mengirim (`push`) perubahanmu jika ada.
+---
 
-![Contoh Tombol Sync Changes di VS Code](https://code.visualstudio.com/assets/docs/sourcecontrol/git/sync.png)
+## 🚀 Panduan Instalasi & Menjalankan Proyek
 
-#### 3. Mengerjakan Tugas dan Mengirim Perubahan (`Push`)
+Untuk menjalankan proyek ini di komputermu, ikuti 5 langkah mudah berikut.
 
-1.  **Edit Kode:** Silakan buka file HTML/CSS/JS yang mau kamu kerjakan dan ubah sesuai tugasmu. Simpan file (`Ctrl+S`).
-2.  **Buka Tab Source Control:** Klik ikon ke-tiga dari atas di menu sebelah kiri (logo seperti percabangan).
-3.  **Tulis Pesan Perubahan (Commit Message):** Di atas daftar file yang berubah, ada kolom "Message". Tulis pesan singkat tentang apa yang kamu ubah.
-    * *Contoh bagus:* `Menambahkan footer di halaman utama`, `Memperbaiki warna tombol login`.
-    * *Contoh kurang bagus:* `update`, `perubahan`, `wkwk`.
-4.  **Commit:** Klik tombol **"Commit"** berwarna biru. Ini seperti menyimpan "snapshot" dari perubahanmu secara lokal.
-5.  **Kirim ke GitHub (Push):** Klik tombol **"Sync Changes"** di pojok kiri bawah (sama seperti langkah `pull`). Perubahanmu sekarang akan terkirim ke GitHub dan bisa dilihat oleh teman-teman lain.
+### Langkah 1: Clone Repository ke Folder `htdocs`
 
-Itu saja! Dengan mengikuti alur ini, kita bisa bekerja sama tanpa harus pusing dengan perintah-perintah yang rumit.
+Buka terminal, masuk ke folder `htdocs` di dalam direktori instalasi XAMPP kamu, lalu jalankan perintah ini:
 
-### ✨ Tips Tambahan
+```bash
+# Contoh path di Windows: cd C:/xampp/htdocs
+# Contoh path di Mac: cd /Applications/XAMPP/htdocs
 
-* **Komunikasi!** Selalu bilang di grup kalau kamu mau mengerjakan file `A.html` agar tidak ada orang lain yang mengerjakan file yang sama di waktu bersamaan.
-* **Selalu `Pull` (Sync Changes) sebelum mulai coding.** Ini adalah kebiasaan paling penting untuk menghindari konflik.
-* **Tulis pesan commit yang jelas.** Ini sangat membantu kita semua untuk tahu riwayat perubahan proyeknya.
+git clone [https://github.com/NasiGakPakeNasi/Pemrograman_Web.git](https://github.com/NasiGakPakeNasi/Pemrograman_Web.git)
+````
 
-Semangat Mengerjakannya, Tim! 🔥
+**Penting:** Proyek ini **harus** berada di dalam folder `htdocs` agar bisa dijalankan oleh server Apache.
+
+### Langkah 2: Setup Database
+
+1.  Nyalakan **Apache** dan **MySQL** dari XAMPP Control Panel.
+2.  Buka browser dan akses `http://localhost/phpmyadmin`.
+3.  Buat database baru dengan nama `warkop_bejo_db`.
+4.  Pilih database tersebut, lalu klik tab **"Import"**.
+5.  Klik **"Choose File"** dan pilih file `warkop_bejo.sql` yang ada di folder utama proyek ini.
+6.  Klik **"Go"** atau **"Import"**. Semua tabel akan otomatis dibuat.
+
+### Langkah 3: Konfigurasi Koneksi (Jika Perlu)
+
+Secara default, koneksi sudah diatur untuk XAMPP standar. Jika berbeda, sesuaikan file `app/config/database.php`.
+
+### Langkah 4: Jalankan Proyek
+
+Buka browser dan akses URL: `http://localhost/Pemrograman_Web/public/`
+
+### Langkah 5: Selalu Update Proyekmu
+
+Jika ada fitur baru yang digabung ke `main`, dapatkan versi terbarunya dengan:
+
+```bash
+git checkout main
+git pull origin main
+```
+
+-----
+
+## 🤝 Panduan Kontribusi
+
+Kami sangat terbuka untuk kontribusi, baik dari anggota tim maupun dari komunitas luar. Berikut adalah alur kerja yang perlu diikuti.
+
+### Alur Kerja untuk Anggota Tim (Kolaborator)
+
+Sebagai anggota tim, kamu memiliki akses langsung untuk membuat *branch*. Ikuti alur ini:
+
+1.  **Sinkronisasi:** Pastikan kamu memulai dari versi `main` yang terbaru (`git pull origin main`).
+2.  **Buat Branch Baru:** Buat *branch* baru untuk setiap fitur yang kamu kerjakan.
+    ```bash
+    # Contoh: git checkout -b fitur-pembayaran-rafli
+    git checkout -b nama-fitur-kamu
+    ```
+3.  **Bekerja & Commit:** Lakukan perubahan, dan simpan pekerjaanmu secara berkala.
+    ```bash
+    git add .
+    git commit -m "feat: Selesai membuat halaman pembayaran"
+    ```
+4.  **Push Branch:** Kirim *branch* spesifik milikmu ke repositori utama.
+    ```bash
+    git push origin nama-fitur-kamu
+    ```
+5.  **Buat Pull Request:** Buka GitHub dan buat *Pull Request* dari *branch*-mu ke `main`. Minta 1-2 teman untuk me-review kodemu.
+6.  **Merge:** Setelah disetujui, gabungkan (merge) *Pull Request* tersebut.
+
+### Alur Kerja untuk Kontributor Eksternal
+
+Jika kamu bukan anggota tim, kamu tidak bisa melakukan `push` langsung. Ikuti langkah-langkah standar *open-source* berikut:
+
+1.  **Fork Repositori:** Klik tombol **"Fork"** di pojok kanan atas halaman ini untuk membuat salinan repositori ini ke akun GitHub-mu.
+2.  **Clone Fork Milikmu:** Lakukan `git clone` pada repositori hasil *fork* yang ada di akunmu (bukan dari repositori asli).
+3.  **Buat Branch Baru:** Sama seperti alur kerja tim, buatlah *branch* baru untuk perubahanmu.
+4.  **Bekerja & Commit:** Lakukan perubahan yang kamu inginkan.
+5.  **Push ke Fork Milikmu:** Lakukan `push` ke repositori hasil *fork* milikmu.
+    ```bash
+    git push origin nama-branch-kamu
+    ```
+6.  **Buat Pull Request:** Buka repositori hasil *fork* di akunmu, dan klik tombol **"Contribute"** lalu **"Open pull request"**. Ini akan mengajukan perubahan dari *fork* milikmu ke proyek asli kami.
+7.  **Diskusi & Review:** Tim kami akan me-review kodemu. Jika disetujui, kami yang akan melakukan *merge*. Terima kasih atas kontribusimu\!
+
+-----
+
+## 🧑‍💻 Tim Pengembang
+
+  * **Menu Utama:** W***n
+  * **Produk/Menu:** B***s
+  * **Keranjang:** R***y
+  * **Pembayaran:** R***i
+  * **Struk:** D***a
+  * **Profil/Dashboard & Auth:** V**o
+
+<!-- end list -->
