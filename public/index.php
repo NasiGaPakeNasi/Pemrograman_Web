@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Warkop Bejo</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="css/style.css" /> 
 </head>
 <body>
   <header>
@@ -22,7 +22,7 @@
 
  <section class="hero">
   <div class="hero-overlay">
-    <img src="Warkop Bejo 1.jpg" alt="Warkop Interior">
+    <img src="images/Warkop Bejo 1.jpg" alt="Warkop Interior">
     <div class="hero-text">
       <h1>Selamat Datang di Warkop Bejo</h1>
       <p>Nongkrong Asik 24 Jam!</p>
