@@ -51,6 +51,15 @@ git clone [https://github.com/NasiGakPakeNasi/Pemrograman_Web.git](https://githu
 5.  Klik **"Choose File"** dan pilih file `warkop_bejo.sql` yang ada di folder utama proyek ini.
 6.  Klik **"Go"** atau **"Import"**. Semua tabel akan otomatis dibuat.
 
+### Langkah 2.1: Setup Database dengan Benar
+
+1.  Nyalakan **Apache** dan **MySQL** dari XAMPP Control Panel.
+2.  Buka browser dan akses `http://localhost/phpmyadmin`.
+3.  Buat database baru dengan nama `warkop_bejo_db`.
+4.  Pilih database `warkop_bejo_db` yang baru dibuat, lalu klik tab **"Import"**.
+5.  Klik **"Choose File"** dan pilih file `warkop_bejo.sql` yang ada di folder utama proyek ini.
+6.  Klik **"Go"** atau **"Import"**. Semua tabel akan otomatis dibuat.
+
 ### Langkah 3: Konfigurasi Koneksi (Jika Perlu)
 
 Secara default, koneksi sudah diatur untuk XAMPP standar. Jika berbeda, sesuaikan file `app/config/database.php`.
