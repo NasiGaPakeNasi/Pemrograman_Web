@@ -123,3 +123,14 @@ Jika kamu bukan anggota tim, kamu tidak bisa melakukan `push` langsung. Ikuti la
   * **Profil/Dashboard & Auth:** V**o
 
 <!-- end list -->
+
+### ✨ Tips Pesan Commit
+
+Gunakan format `tipe: deskripsi` agar riwayat kita rapi. Ini contekannya:
+
+* **`feat`**: Menambah fitur baru.
+* **`fix`**: Memperbaiki bug/error.
+* **`docs`**: Mengubah dokumentasi (misal: `README.md`).
+* **`style`**: Merapikan kode (spasi, titik koma, dll).
+* **`refactor`**: Menyusun ulang kode tanpa mengubah fungsi.
+* **`chore`**: Tugas lain (misal: menghapus file, update `.gitignore`).
