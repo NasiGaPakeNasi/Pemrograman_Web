@@ -37,7 +37,6 @@
   </div>
 </section>
 
-
   <section class="about-section">
     <h2>About Us</h2>
     <div class="about-content">
@@ -53,7 +52,6 @@
     </div>
   </section>
 
-  
   <!-- Contact Section -->
   <section class="contact-section">
     <h2>Contact Us</h2>
@@ -68,7 +66,6 @@
       </ul>
     </div>
   </section>
-
   
   <script src="main.js"></script>
    <!-- Footer -->
