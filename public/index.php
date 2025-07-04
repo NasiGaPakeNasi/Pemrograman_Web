@@ -28,12 +28,12 @@
       <p>Nongkrong Asik 24 Jam!</p>
     </div>
   </div>
-</section>
+</section>  
 
  <section class="menu-section">
   <h2>View The Menu</h2>
   <div class="menu-items">
-    <?php include 'koneksi.php'; ?>
+    <?php include 'public/koneksi.php'; ?>
   </div>
 </section>
 
@@ -48,7 +48,7 @@
         <h4>Customer Service</h4>
         <p>Rawrr.</p>
       </div>
-      <img src="gambar4.png" alt="About us image" />
+      <img src="images/gambar4.png" alt="About us image" />
     </div>
   </section>
 
@@ -67,7 +67,7 @@
     </div>
   </section>
   
-  <script src="main.js"></script>
+  <script src="js/main.js"></script>
    <!-- Footer -->
   <footer class="footer">
     <p>© 2025 Warkop Bejo. Nongkrong Asik 24 Jam!</p>
