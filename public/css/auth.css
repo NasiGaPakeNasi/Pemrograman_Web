@@ -1,0 +1,117 @@
+/* public/css/auth.css */
+/* Gaya untuk halaman login dan registrasi Warkop Bejo */
+
+/* Menggunakan font Poppins yang sama dengan halaman utama dan mengatur dasar halaman */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  background-color: #f7f7f7; /* Warna latar yang netral seperti halaman utama */
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Memastikan form berada di tengah layar secara vertikal */
+}
+
+/* Kontainer utama untuk membungkus form */
+.auth-container {
+  background-color: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Judul form (Login / Registrasi) */
+.auth-container h2 {
+  margin: 0 0 24px 0;
+  color: #004d40; /* Warna hijau tua yang sama dengan logo/navbar di halaman utama */
+  font-size: 28px;
+  font-weight: 700;
+}
+
+/* Setiap baris input (label + input field) */
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+/* Input field untuk username dan password */
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box; /* Agar padding tidak merusak lebar */
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #00796b; /* Warna hijau yang sedikit lebih terang saat input aktif */
+}
+
+/* Tombol utama */
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  background-color: #004d40; /* Warna hijau tua yang sama dengan tombol di halaman utama */
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  border-radius: 30px; /* Membuat tombol berbentuk kapsul, modern */
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-submit:hover {
+  background-color: #00695c; /* Warna sedikit lebih terang saat disentuh */
+}
+
+/* Link untuk pindah halaman (misal: "Belum punya akun?") */
+.switch-auth {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.switch-auth a {
+  color: #00796b;
+  text-decoration: none;
+  font-weight: 500;
+  transition: text-decoration 0.3s;
+}
+
+.switch-auth a:hover {
+  text-decoration: underline;
+}
+
+/* Gaya untuk pesan notifikasi (sukses atau error) */
+.message {
+  padding: 10px;
+  margin-top: 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+}
+
+.message.success {
+  background-color: #2e7d32; /* Hijau untuk sukses */
+}
+
+.message.error {
+  background-color: #c62828; /* Merah untuk error */
+}

@@ -16,6 +16,7 @@
         <li><a href="menu.html">Menu</a></li>
         <li><a href="keranjang.html">Keranjang</a></li>
         <li><a href="kontak.html">Kontak</a></li>
+        <li><a href="login.php">Login</a></li>
       </ul>
     </nav>
   </header>
