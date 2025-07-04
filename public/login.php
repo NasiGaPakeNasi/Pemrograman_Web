@@ -1,19 +1,34 @@
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html>
-<head><title>Login</title></head>
+
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+
 <body>
-<h2>Login</h2>
-<form action="" method="POST"> 
-    <input type="text" name="username" placeholder="Username" required />
-    <input type="password" name="password" placeholder="Password" required />
-    <button type="submit">Login</button>
-</form>
-<p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>
+    <div class="auth-container">
+        <h2>Login</h2>
+        <form action="" method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required />
+            </div>
+            <button type="submit" class="btn-submit">Login</button>
+        </form>
+        <p class="switch-auth">Belum punya akun? <a href="register.php">Daftar di sini</a></p>
+        
+        </div>
+
 
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once __DIR__ . '/../includes/auth.php';
+    require_once __DIR__ . '/../app/includes/auth.php';
 
     $username = $_POST['username'];
     $password = $_POST['password'];
