@@ -1,6 +1,6 @@
 # ☕ Warkop Bejo - Website Pemesanan Kopi Sederhana
 
-Selamat datang di markas besar proyek Website Warkop Bejo! Ini adalah proyek tugas kelompok untuk mata kuliah Pemrograman Web yang bertujuan untuk membuat aplikasi pemesanan kopi online yang fungsional dan modern, dibangun dengan PHP dan MySQL.
+"Selamat datang di markas besar proyek Website Warkop Bejo! Ini adalah sebuah proyek untuk membangun aplikasi pemesanan kopi online yang fungsional dan modern dari awal menggunakan PHP, MySQL, dan JavaScript."
 
 ![Screenshot Halaman Utama](public/images/warkop-bejo.png)
 
