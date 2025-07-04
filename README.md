@@ -1,20 +1,9 @@
-Tentu saja\! Pemikiranmu sudah sangat maju. Membedakan alur kerja untuk tim internal dan kontributor luar adalah praktik standar di proyek-proyek besar dan akan membuat `README` kalian sangat profesional.
 
-Kamu benar sekali:
-
-  * **Kolaborator (anggota tim):** Bisa langsung membuat *branch* dan melakukan `push` ke repositori utama.
-  * **Orang Asing (kontributor eksternal):** Tidak bisa langsung `push`. Mereka harus melakukan `fork` (membuat salinan) dulu, baru mengajukan perubahan lewat *Pull Request*.
-
-Berikut adalah draf `README.md` versi final yang sudah disempurnakan dengan panduan kontribusi yang lebih detail seperti yang kamu inginkan.
-
------
-
-````markdown
 # ☕ Warkop Bejo - Website Pemesanan Kopi Sederhana
 
 Selamat datang di markas besar proyek Website Warkop Bejo! Ini adalah sebuah proyek untuk membangun aplikasi pemesanan kopi online yang fungsional dan modern dari awal menggunakan PHP, MySQL, dan JavaScript.
 
-![Screenshot Halaman Utama](public/images/screenshot-placeholder.png)
+![Screenshot Halaman Utama](public/images/warkop-bejo.png)
 *(Catatan untuk tim: Ganti gambar di atas dengan screenshot terbaik dari aplikasi kita nanti)*
 
 ---
