@@ -1,20 +1,29 @@
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html>
-<head><title>Registrasi</title></head>
+<head>
+    <title>Registrasi</title>
+    <link rel="stylesheet" href="css/auth.css">
+</head>
 <body>
-<h2>Registrasi Akun Baru</h2>
-<form action="" method="POST"> 
-    <input type="text" name="new_username" placeholder="Username Baru" required />
-    <input type="password" name="new_password" placeholder="Password Baru" required />
-    <button type="submit">Daftar</button>
-</form>
-<p>Sudah punya akun? <a href="index.php">Login di sini</a></p>
-
+    <div class="auth-container">
+        <h2>Registrasi Akun Baru</h2>
+        <form action="" method="POST">
+            <div class="form-group">
+                <label for="new_username">Username Baru</label>
+                <input type="text" id="new_username" name="new_username" required />
+            </div>
+            <div class="form-group">
+                <label for="new_password">Password Baru</label>
+                <input type="password" id="new_password" name="new_password" required />
+            </div>
+            <button type="submit" class="btn-submit">Daftar</button>
+        </form>
+        <p class="switch-auth">Sudah punya akun? <a href="login.php">Login di sini</a></p>
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once __DIR__ . '/../includes/auth.php';
-    require_once __DIR__ . '/../config/database.php';
+    require_once __DIR__ . '/../app/includes/auth.php';
+    require_once __DIR__ . '/../app/config/database.php';
     
     $newUsername = $_POST['new_username'];
     $newPassword = $_POST['new_password'];
@@ -33,5 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+        </div>
+
 </body>
 </html>
