@@ -135,3 +135,21 @@ body {
   text-align: right;
   margin-top: 8px;
 }
+
+/* Tombol untuk upload foto profil */
+.btn-upload {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #00796b; /* Warna hijau yang lebih cerah */
+  color: white;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-upload:hover {
+  background-color: #004d40;
+}

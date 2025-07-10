@@ -24,6 +24,17 @@ $purchaseHistory = getPurchaseHistory($userId);
 </head>
 <body>
 
+<div class="profile-picture">
+    <img id="preview" src="<?php echo htmlspecialchars($userProfile['profile_pic_url'] ?? 'path/to/default-avatar.png'); ?>" alt="Foto Profil" />
+</div>
+
+<form action="upload_profile_picture.php" method="POST" enctype="multipart/form-data">
+    <input type="file" name="profile_picture" id="profile_picture" required>
+    <button type="submit" name="upload" class="btn-upload">Ganti Foto</button>
+</form>
+
+<label for="nama-pengguna">Nama Pengguna:</label>
+
     <div class="profile-card dashboard-card">
         <div class="profile-picture">
             <img id="preview" src="" alt="Foto Profil" />
