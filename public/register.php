@@ -2,43 +2,47 @@
 session_start();
 require_once __DIR__ . '/../app/config/database.php';
 
-// Cek jika ada pesan status dari URL
 $status = isset($_GET['status']) ? $_GET['status'] : '';
+$message = isset($_GET['message']) ? $_GET['message'] : '';
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Registrasi</title>
-    <link rel="stylesheet" href="css/auth.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Warkop Bejo</title>
+    <!-- Perbaikan Path CSS -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/auth.css">
 </head>
 <body>
     <div class="auth-container">
-        <h2>Registrasi Akun Baru</h2>
+        <h2>Login Warkop Bejo</h2>
 
         <?php
-        // --- PERBAIKAN: Menampilkan pesan notifikasi ---
-        if ($status === 'reg_exists') {
-            echo "<p class='message error'>Username sudah terdaftar. Silakan gunakan username lain.</p>";
+        if ($status === 'reg_success') {
+            echo "<p class='message success'>Registrasi berhasil! Silakan login.</p>";
         }
-        if ($status === 'reg_failed') {
-            echo "<p class='message error'>Registrasi gagal. Terjadi kesalahan.</p>";
+        if ($status === 'login_failed') {
+            echo "<p class='message error'>" . htmlspecialchars($message) . "</p>";
+        }
+        if ($status === 'login_required') {
+            echo "<p class='message error'>Anda harus login untuk mengakses halaman tersebut.</p>";
         }
         ?>
 
-        <!-- PERBAIKAN: Form action mengarah ke controller -->
-        <form action="../app/controllers/auth_controller.php" method="POST">
+        <!-- Perbaikan Form Action -->
+        <form action="<?php echo BASE_URL; ?>app/controllers/auth_controller.php" method="POST">
             <div class="form-group">
-                <label for="new_username">Username Baru</label>
-                <input type="text" id="new_username" name="new_username" required />
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required />
             </div>
             <div class="form-group">
-                <label for="new_password">Password Baru</label>
-                <input type="password" id="new_password" name="new_password" required />
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required />
             </div>
-            <!-- PERBAIKAN: Menambahkan 'name' pada tombol untuk identifikasi di controller -->
-            <button type="submit" name="register" class="btn-submit">Daftar</button>
+            <button type="submit" name="login" class="btn-submit">Login</button>
         </form>
-        <p class="switch-auth">Sudah punya akun? <a href="login.php">Login di sini</a></p>
+        <p class="switch-auth">Belum punya akun? <a href="<?php echo BASE_URL; ?>public/register.php">Daftar di sini</a></p>
     </div>
 </body>
 </html>

@@ -34,4 +34,7 @@ if ($conn->connect_error) {
 // Set karakter set untuk koneksi
 $conn->set_charset("utf8mb4");
 
+ini_set('display_errors', 0);
+error_reporting(0);
 ?>
+

@@ -1,29 +1,30 @@
 <?php
 session_start();
 
-// Cek apakah user sudah login
 if (!isset($_SESSION['user_id'])) {
-    // Jika belum login, arahkan kembali ke halaman login atau index
-    header("Location: index.php");
+    header("Location: login.php");
     exit();
 }
 
-// Sertakan file auth untuk fungsi getPurchaseHistory
-// PROJECT_ROOT didefinisikan di app/config/database.php
-require_once __DIR__ . '/../app/includes/auth.php'; 
-// Sertakan file koneksi database pusat (diperlukan oleh auth.php, tapi pastikan juga ada)
 require_once __DIR__ . '/../app/config/database.php';
-
+require_once __DIR__ . '/../app/includes/auth.php';
 
 $userId = $_SESSION['user_id'];
 $username = $_SESSION['username'];
-$purchaseHistory = getPurchaseHistory($userId); // Ambil riwayat pembelian dari fungsi auth.php
-
-// Tutup koneksi database setelah semua data yang dibutuhkan diambil
+$purchaseHistory = getPurchaseHistory($userId);
 $conn->close();
 
-// Cek apakah pengguna adalah admin (untuk navigasi)
 $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
+
+function getDayNameInIndonesian($date) {
+    $dayNames = [
+        'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
+        'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat',
+        'Saturday' => 'Sabtu'
+    ];
+    $day = date('l', strtotime($date));
+    return $dayNames[$day];
+}
 ?>
 
 <!DOCTYPE html>
@@ -32,8 +33,9 @@ $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dashboard Pengguna | Warkop Bejo</title>
-    <link rel="stylesheet" href="css/style.css"> <!-- Menggunakan style.css untuk navbar -->
-    <link rel="stylesheet" href="css/dashboard.css"> <!-- Untuk gaya kartu dashboard -->
+    <!-- Perbaikan Path CSS -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/dashboard.css">
 </head>
 <body>
     <header>
@@ -41,14 +43,20 @@ $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
         <nav class="navbar">
             <div class="logo">WARKOP BEJO</div>
             <ul class="nav-links">
-                <li><a href="menu.php">Menu</a></li>
-                <li><a href="keranjang.php">Keranjang</a></li>
+                <li><a href="<?php echo BASE_URL; ?>public/index.php">Home</a></li>
+                <li><a href="<?php echo BASE_URL; ?>public/menu.php">Menu</a></li>
+                <li><a href="<?php echo BASE_URL; ?>public/keranjang.php">Keranjang</a></li>
                 <?php if ($isAdmin): ?>
-                    <li><a href="../admin/dashboard.php">Admin Dashboard</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>admin/dashboard.php">Admin Panel</a></li>
                 <?php else: ?>
-                    <li><a href="dashboard.php" class="active">Dashboard</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>public/dashboard.php" class="active">Dashboard</a></li>
                 <?php endif; ?>
-                <li><a href="logout.php">Logout (<?php echo htmlspecialchars($username); ?>)</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Halo, <?php echo htmlspecialchars($username); ?> &#9662;</a>
+                    <div class="dropdown-content">
+                        <a href="<?php echo BASE_URL; ?>public/logout.php">Logout</a>
+                    </div>
+                </li>
             </ul>
         </nav>
     </header>
@@ -56,53 +64,64 @@ $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
     <main class="dashboard-container">
         <div class="profile-card dashboard-card">
             <div class="profile-picture">
-                <!-- Anda bisa menambahkan logika untuk menampilkan gambar profil di sini -->
-                <!-- Untuk saat ini, placeholder atau gambar default -->
-                <img id="preview" src="https://placehold.co/120x120/E0E0E0/333333?text=Profil" alt="Foto Profil" />
+                <img id="preview" src="https://placehold.co/120x120/004d40/FFFFFF?text=<?php echo strtoupper(substr($username, 0, 1)); ?>" alt="Foto Profil" />
+                <label for="file-upload" class="upload-icon">&#9998;</label>
+                <input id="file-upload" type="file" accept="image/*"/>
             </div>
-            <label for="nama-pengguna">Nama Pengguna:</label>
-            <input type="text" id="nama-pengguna" value="<?php echo htmlspecialchars($username); ?>" disabled />
-            <form action="logout.php" method="POST">
+            <h3><?php echo htmlspecialchars($username); ?></h3>
+            <p>Selamat datang di dashboard Anda!</p>
+            <form action="<?php echo BASE_URL; ?>public/logout.php" method="POST">
                 <button type="submit" class="btn-logout">Logout</button>
             </form>
         </div>
 
         <div class="history-card dashboard-card">
             <h2>Riwayat Pembelian</h2>
-
-            <?php if (!empty($purchaseHistory)): ?>
-                <?php foreach ($purchaseHistory as $entry): ?>
-                    <div class="history-entry">
-                        <div class="date"><?php echo htmlspecialchars($entry['tanggal']); ?></div>
-                        <ul>
-                            <?php
-                            // Asumsikan 'items' adalah array atau objek setelah json_decode
-                            if (!empty($entry['items']) && is_array($entry['items'])) {
-                                foreach ($entry['items'] as $itemDetail) {
-                                    // Sesuaikan dengan struktur item di kolom 'items' tabel 'purchases'
-                                    // Misalnya, jika disimpan sebagai [{"nama_menu": "Kopi", "jumlah": 2, "harga": 7000}]
-                                    echo "<li>";
-                                    echo htmlspecialchars($itemDetail['nama_menu'] ?? 'Nama Item Tidak Diketahui');
-                                    echo " (" . htmlspecialchars($itemDetail['jumlah'] ?? 1) . "x)";
-                                    echo " - Rp" . number_format($itemDetail['harga'] ?? 0, 0, ',', '.');
-                                    echo "</li>";
+            <div class="history-list">
+                <?php if (!empty($purchaseHistory)): ?>
+                    <?php foreach ($purchaseHistory as $entry): ?>
+                        <div class="history-entry">
+                            <div class="date-header">
+                                <span class="day"><?php echo getDayNameInIndonesian($entry['tanggal']); ?></span>
+                                <span class="date"><?php echo date('d F Y, H:i', strtotime($entry['tanggal'])); ?></span>
+                            </div>
+                            <ul>
+                                <?php
+                                if (!empty($entry['items']) && is_array($entry['items'])) {
+                                    foreach ($entry['items'] as $itemDetail) {
+                                        echo "<li>";
+                                        echo "<span>" . htmlspecialchars($itemDetail['nama_menu'] ?? 'N/A') . " (" . htmlspecialchars($itemDetail['jumlah'] ?? 1) . "x)</span>";
+                                        echo "<span>Rp" . number_format($itemDetail['subtotal'] ?? 0, 0, ',', '.') . "</span>";
+                                        echo "</li>";
+                                    }
+                                } else {
+                                    echo "<li>Detail item tidak tersedia.</li>";
                                 }
-                            } else {
-                                echo "<li>Detail item tidak tersedia.</li>";
-                            }
-                            ?>
-                        </ul>
-                        <div class="total">Total: Rp<?php echo number_format($entry['total'], 0, ',', '.'); ?></div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>Tidak ada riwayat pembelian.</p>
-            <?php endif; ?>
+                                ?>
+                            </ul>
+                            <div class="total">
+                                <span>Total Belanja</span>
+                                <span>Rp<?php echo number_format($entry['total'], 0, ',', '.'); ?></span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p class="no-history">Tidak ada riwayat pembelian.</p>
+                <?php endif; ?>
+            </div>
         </div>
     </main>
 
-<!-- Hapus script main.js karena tidak diperlukan di halaman dashboard -->
-<!-- <script src="js/main.js"></script> -->
-
+    <script>
+        const fileUpload = document.getElementById('file-upload');
+        const preview = document.getElementById('preview');
+        fileUpload.addEventListener('change', function() {
+            if (this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = () => { preview.src = reader.result; };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    </script>
 </body>
 </html>

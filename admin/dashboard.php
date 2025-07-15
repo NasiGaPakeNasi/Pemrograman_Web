@@ -1,17 +1,59 @@
 <?php
-// admin/dashboard.php
-// Halaman dashboard untuk Administrator Warkop Bejo
+session_start();
 
-session_start(); // Pastikan sesi dimulai
-
-// Sertakan file auth untuk memeriksa status admin
 require_once __DIR__ . '/../app/includes/auth.php';
+require_once __DIR__ . '/../app/config/database.php';
 
-// Lindungi halaman: hanya admin yang bisa mengakses
 redirectToLoginIfNotAdmin();
 
-// Jika sudah login dan admin, ambil data sesi
 $username = $_SESSION['username'];
+
+// --- Fetch Data for Dashboard Widgets ---
+// Total Pendapatan Hari Ini
+$stmt_revenue = $conn->prepare("SELECT SUM(total) as total_revenue FROM purchases WHERE DATE(tanggal) = CURDATE()");
+$stmt_revenue->execute();
+$result_revenue = $stmt_revenue->get_result()->fetch_assoc();
+$todays_revenue = $result_revenue['total_revenue'] ?? 0;
+$stmt_revenue->close();
+
+// Jumlah Pesanan Hari Ini
+$stmt_orders = $conn->prepare("SELECT COUNT(id) as total_orders FROM purchases WHERE DATE(tanggal) = CURDATE()");
+$stmt_orders->execute();
+$result_orders = $stmt_orders->get_result()->fetch_assoc();
+$todays_orders = $result_orders['total_orders'] ?? 0;
+$stmt_orders->close();
+
+// Jumlah Pengguna Terdaftar
+$stmt_users = $conn->prepare("SELECT COUNT(id) as total_users FROM users");
+$stmt_users->execute();
+$result_users = $stmt_users->get_result()->fetch_assoc();
+$total_users = $result_users['total_users'] ?? 0;
+$stmt_users->close();
+
+// Jumlah Menu
+$stmt_menus = $conn->prepare("SELECT COUNT(id_menu) as total_menus FROM menu");
+$stmt_menus->execute();
+$result_menus = $stmt_menus->get_result()->fetch_assoc();
+$total_menus = $result_menus['total_menus'] ?? 0;
+$stmt_menus->close();
+
+// Aktivitas Terbaru (5 terakhir)
+$recent_purchases = [];
+$stmt_recent = $conn->prepare(
+    "SELECT p.tanggal, u.username, p.total 
+     FROM purchases p 
+     JOIN users u ON p.user_id = u.id 
+     ORDER BY p.tanggal DESC 
+     LIMIT 5"
+);
+$stmt_recent->execute();
+$result_recent = $stmt_recent->get_result();
+while ($row = $result_recent->fetch_assoc()) {
+    $recent_purchases[] = $row;
+}
+$stmt_recent->close();
+
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -19,107 +61,94 @@ $username = $_SESSION['username'];
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Admin Dashboard | Warkop Bejo</title>
-    <link rel="stylesheet" href="../public/css/dashboard.css"> <!-- Gunakan CSS yang sudah ada -->
-    <style>
-        /* Gaya tambahan khusus admin jika diperlukan */
-        .admin-nav {
-            background-color: #333;
-            padding: 10px 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-        .admin-nav a {
-            color: white;
-            text-decoration: none;
-            padding: 10px 15px;
-            margin: 0 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .admin-nav a:hover {
-            background-color: #555;
-        }
-        .welcome-message {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 24px;
-            color: #004d40;
-        }
-        .admin-features {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .feature-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border-top: 4px solid #00796b;
-            text-align: center;
-            width: 250px;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-        .feature-card h3 {
-            color: #004d40;
-            margin-bottom: 15px;
-        }
-        .feature-card p {
-            color: #555;
-            margin-bottom: 20px;
-        }
-        .feature-card a {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #004d40;
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            transition: background-color 0.3s ease;
-        }
-        .feature-card a:hover {
-            background-color: #00695c;
-        }
-    </style>
+    <!-- Link ke file CSS baru dan Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="css/admin_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
-    <div class="topbar">Admin Panel Warkop Bejo</div>
-    <div class="admin-nav">
-        <a href="dashboard.php">Dashboard</a>
-        <a href="manage_menu.php">Kelola Menu</a>
-        <!-- Tambahkan link lain untuk fitur admin di masa mendatang -->
-        <a href="../public/logout.php">Logout</a>
-    </div>
+    <aside class="sidebar">
+        <div class="sidebar-brand">Warkop Bejo</div>
+        <ul class="sidebar-nav">
+            <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="manage_menu.php"><i class="fas fa-utensils"></i> <span>Kelola Menu</span></a></li>
+            <!-- Tambahkan link lain di sini jika perlu -->
+            <!-- <li><a href="#"><i class="fas fa-users"></i> <span>Kelola Pengguna</span></a></li> -->
+            <li><a href="manage_users.php"><i class="fas fa-users"></i> <span>Kelola Pengguna</span></a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="../public/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
 
-    <div class="welcome-message">
-        Halo, Admin <?php echo htmlspecialchars($username); ?>! Selamat datang di Panel Administrasi.
-    </div>
+    <main class="main-content">
+        <header class="main-header">
+            <h1>Dashboard</h1>
+            <p>Selamat datang kembali, Admin <?php echo htmlspecialchars($username); ?>!</p>
+        </header>
 
-    <div class="admin-features">
-        <div class="feature-card">
-            <h3>Kelola Menu</h3>
-            <p>Tambah, edit, atau hapus item menu kopi dan makanan.</p>
-            <a href="manage_menu.php">Buka</a>
-        </div>
-        <div class="feature-card">
-            <h3>Lihat Pesanan</h3>
-            <p>Pantau pesanan yang masuk dari pelanggan.</p>
-            <a href="#">Buka (Segera Hadir)</a>
-        </div>
-        <div class="feature-card">
-            <h3>Kelola Pengguna</h3>
-            <p>Lihat dan kelola akun pengguna.</p>
-            <a href="#">Buka (Segera Hadir)</a>
-        </div>
-    </div>
+        <section class="stats-grid">
+            <div class="stat-card revenue">
+                <div class="icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="info">
+                    <h4>Pendapatan Hari Ini</h4>
+                    <p>Rp<?= number_format($todays_revenue, 0, ',', '.') ?></p>
+                </div>
+            </div>
+            <div class="stat-card orders">
+                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="info">
+                    <h4>Pesanan Hari Ini</h4>
+                    <p><?= $todays_orders ?></p>
+                </div>
+            </div>
+            <div class="stat-card users">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <div class="info">
+                    <h4>Total Pengguna</h4>
+                    <p><?= $total_users ?></p>
+                </div>
+            </div>
+            <div class="stat-card menus">
+                <div class="icon"><i class="fas fa-book-open"></i></div>
+                <div class="info">
+                    <h4>Jumlah Menu</h4>
+                    <p><?= $total_menus ?></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="recent-activity">
+            <h3>Aktivitas Terbaru</h3>
+            <table class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Pengguna</th>
+                        <th>Total Belanja</th>
+                        <th>Waktu</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($recent_purchases)): ?>
+                        <?php foreach($recent_purchases as $purchase): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($purchase['username']) ?></td>
+                                <td>Rp<?= number_format($purchase['total'], 0, ',', '.') ?></td>
+                                <td><?= date('d M Y, H:i', strtotime($purchase['tanggal'])) ?></td>
+                                <td><span class="status new-order">Pesanan Baru</span></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="4" style="text-align: center;">Belum ada aktivitas hari ini.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </section>
+
+    </main>
 
 </body>
 </html>

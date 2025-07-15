@@ -2,12 +2,12 @@
 session_start(); 
 require_once __DIR__ . '/../app/config/database.php';
 require_once PROJECT_ROOT . '/app/models/Menu.php';
+
 $menuOptions = getAllMenu($conn);
 $conn->close();
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $username = $isLoggedIn ? $_SESSION['username'] : '';
-$isAdmin = $isLoggedIn && isset($_SESSION['is_admin']) ? ($_SESSION['is_admin'] == 1) : false;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -15,36 +15,38 @@ $isAdmin = $isLoggedIn && isset($_SESSION['is_admin']) ? ($_SESSION['is_admin'] 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Keranjang | Warkop Bejo</title>
-  <link rel="stylesheet" href="css/style.css"> 
-  <link rel="stylesheet" href="css/keranjang.css">
+  <!-- Perbaikan Path CSS -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/style.css"> 
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/css/keranjang.css">
 </head>
 <body>
   <div id="notif"></div>
 
-  <header>
-    <div class="topbar">Warkop Bejo</div>
-    <nav class="navbar">
-      <div class="logo">WARKOP BEJO</div>
-      <ul class="nav-links">
-        <li><a href="index.php">Home</a></li>
-        <li><a href="menu.php">Menu</a></li>
-        <li><a href="keranjang.php" class="active">Keranjang</a></li>
-        <?php if ($isLoggedIn): ?>
-            <?php if ($isAdmin): ?>
-                <li><a href="../admin/dashboard.php">Admin Dashboard</a></li>
-            <?php else: ?>
-                <li><a href="dashboard.php">Dashboard</a></li>
-            <?php endif; ?>
-            <li><a href="logout.php">Logout (<?php echo htmlspecialchars($username); ?>)</a></li>
-        <?php else: ?>
-            <li><a href="login.php">Login</a></li>
-            <li><a href="register.php">Register</a></li>
-        <?php endif; ?>
-      </ul>
-    </nav>
-  </header>
+    <header>
+        <div class="topbar">Warkop Bejo</div>
+        <nav class="navbar">
+            <div class="logo">WARKOP BEJO</div>
+            <ul class="nav-links">
+                <li><a href="<?php echo BASE_URL; ?>public/index.php">Home</a></li>
+                <li><a href="<?php echo BASE_URL; ?>public/menu.php">Menu</a></li>
+                <li><a href="<?php echo BASE_URL; ?>public/keranjang.php" class="active">Keranjang</a></li>
+                 <?php if ($isLoggedIn): ?>
+                    <li><a href="<?php echo BASE_URL; ?>public/dashboard.php">Dashboard</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">Halo, <?php echo htmlspecialchars($username); ?> &#9662;</a>
+                        <div class="dropdown-content">
+                            <a href="<?php echo BASE_URL; ?>public/logout.php">Logout</a>
+                        </div>
+                    </li>
+                <?php else: ?>
+                    <li><a href="<?php echo BASE_URL; ?>public/login.php">Login</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    </header>
 
   <section class="cart-section">
+    <h2>Keranjang Belanja Anda</h2>
     <div class="menu-select">
       <label for="menu">Pilih Menu:</label>
       <select id="menu">
@@ -58,7 +60,8 @@ $isAdmin = $isLoggedIn && isset($_SESSION['is_admin']) ? ($_SESSION['is_admin'] 
       <button onclick="tambahKeKeranjang()">Tambah ke Keranjang</button>
     </div>
 
-    <form id="checkout-form" action="../app/controllers/checkout_controller.php" method="POST">
+    <!-- Perbaikan Form Action -->
+    <form id="checkout-form" action="<?php echo BASE_URL; ?>app/controllers/checkout_controller.php" method="POST">
       <div id="cart-container">
         <p style='text-align:center; color:#777; padding: 20px;'>Keranjang Anda kosong.</p>
       </div>
@@ -72,6 +75,7 @@ $isAdmin = $isLoggedIn && isset($_SESSION['is_admin']) ? ($_SESSION['is_admin'] 
     </form>
   </section>
 
-  <script src="js/keranjang.js"></script>
+  <!-- Perbaikan Path JS -->
+  <script src="<?php echo BASE_URL; ?>public/js/keranjang.js"></script>
 </body>
 </html>
