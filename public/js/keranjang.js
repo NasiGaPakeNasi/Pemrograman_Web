@@ -1,241 +1,138 @@
 // public/js/keranjang.js
-// Logika JavaScript untuk halaman keranjang belanja
+// Logika JavaScript untuk halaman keranjang belanja (Versi Perbaikan Final)
 
+// Mengambil semua elemen yang kita butuhkan dari halaman
 const cartContainer = document.getElementById("cart-container");
 const totalEl = document.getElementById("total");
 const hiddenInputs = document.getElementById("hidden-inputs");
 const notif = document.getElementById("notif");
 const checkoutForm = document.getElementById("checkout-form");
+// --- PERUBAHAN: Mengambil tombol checkout baru kita ---
+const checkoutButton = document.getElementById("checkout-button-js");
 
-let currentCart = {}; // Objek untuk menyimpan item keranjang saat ini
+let currentCart = {};
 
-// Fungsi untuk memuat keranjang dari sessionStorage saat halaman dimuat
+// Fungsi standar lainnya (tidak berubah)
 function loadCartFromSession() {
     const storedCart = sessionStorage.getItem('currentCart');
     if (storedCart) {
         currentCart = JSON.parse(storedCart);
-        renderCart(); // Render ulang tampilan keranjang
     }
+    renderCart();
 }
 
-// Fungsi untuk menambahkan item ke keranjang (jika ada fitur tambah dari halaman keranjang)
-// Fungsi ini dipanggil oleh onclick="tambahKeKeranjang()" di tombol
 function tambahKeKeranjang() {
     const select = document.getElementById("menu");
-    // Pastikan select.value tidak kosong dan memiliki format yang diharapkan
     if (!select || !select.value) {
-        console.error("Select element or its value is missing.");
         showNotif("Pilih menu terlebih dahulu.", "error");
         return;
     }
     const parts = select.value.split("|");
-    // Pastikan ada setidaknya 3 bagian: gambar, nama, harga
-    if (parts.length < 3) {
-        console.error("Invalid menu item data format from select option:", select.value);
-        showNotif("Format data menu tidak valid.", "error");
+    const img = parts[0], nama = parts[1], harga = parseFloat(parts[2]);
+    if (!nama || isNaN(harga)) {
+        showNotif("Data menu tidak valid.", "error");
         return;
     }
-
-    const img = parts[0];
-    const nama = parts[1];
-    const harga = parseFloat(parts[2]);
-    
-    // Validasi dasar untuk data yang diambil
-    if (!nama || isNaN(harga)) { // Cek nama dan apakah harga adalah angka
-        console.error("Invalid menu item data (name or price is missing/invalid).", {nama, harga});
-        showNotif("Data menu tidak lengkap atau harga tidak valid.", "error");
-        return;
-    }
-
-    const id = Date.now().toString(); // Gunakan timestamp sebagai ID unik sementara
-
-    let existingItemId = null;
-    for (const cartId in currentCart) {
-        if (currentCart[cartId].nama === nama) { // Cek berdasarkan nama untuk menggabungkan item yang sama
-            existingItemId = cartId;
-            break;
-        }
-    }
-
+    let existingItemId = Object.keys(currentCart).find(id => currentCart[id].nama === nama);
     if (existingItemId) {
         currentCart[existingItemId].jumlah += 1;
     } else {
-        currentCart[id] = {
-            img: img,
-            nama: nama,
-            harga: harga,
-            jumlah: 1
-        };
+        const newId = Date.now().toString();
+        currentCart[newId] = { img, nama, harga, jumlah: 1 };
     }
-    
-    sessionStorage.setItem('currentCart', JSON.stringify(currentCart)); // Simpan ke session
-    renderCart(); // Perbarui tampilan
-    showNotif(`"${nama}" berhasil ditambahkan ke keranjang!`, "success"); // Notifikasi sukses
+    sessionStorage.setItem('currentCart', JSON.stringify(currentCart));
+    renderCart();
+    showNotif(`"${nama}" ditambahkan!`, "success");
+    select.selectedIndex = 0;
 }
 
-// Fungsi untuk merender (menggambar ulang) item keranjang di halaman
 function renderCart() {
-    cartContainer.innerHTML = ""; // Bersihkan konten keranjang yang ada
+    cartContainer.innerHTML = "";
     let totalHarga = 0;
-
-    // Loop melalui setiap item di currentCart
-    for (const id in currentCart) {
-        if (currentCart.hasOwnProperty(id)) {
+    if (Object.keys(currentCart).length === 0) {
+        cartContainer.innerHTML = "<p style='text-align:center; color:#777; padding: 20px;'>Keranjang Anda kosong.</p>";
+    } else {
+        for (const id in currentCart) {
             const item = currentCart[id];
-            
-            // Validasi item sebelum merender
-            if (!item || !item.nama || isNaN(item.harga) || !item.jumlah) {
-                console.warn("Skipping invalid cart item:", item);
-                continue; // Lewati item yang tidak valid
-            }
-
             const subtotal = item.harga * item.jumlah;
             totalHarga += subtotal;
-
             const itemDiv = document.createElement("div");
             itemDiv.className = "cart-item";
-            itemDiv.dataset.id = id; // Simpan ID untuk referensi
-
-            // Pastikan item.img ada, jika tidak gunakan placeholder
-            const imgSrc = item.img ? htmlspecialchars(item.img) : 'https://placehold.co/80x80/E0E0E0/333333?text=NoImg';
-
+            const imgSrc = item.img && item.img !== 'null' ? htmlspecialchars(item.img) : 'https://placehold.co/90x90/E0E0E0/333333?text=NoImg';
             itemDiv.innerHTML = `
                 <img src="${imgSrc}" alt="${htmlspecialchars(item.nama)}">
                 <div class="item-details">
-                    <h3>${htmlspecialchars(item.nama)}</h3>
-                    <p>Harga: Rp${item.harga.toLocaleString('id-ID')}</p>
-                    <label>Jumlah:
-                        <input type="number" value="${item.jumlah}" min="1" 
-                               onchange="updateSubtotal('${id}', this.value)">
-                    </label>
+                    <h3>${htmlspecialchars(item.nama)}</h3><p>Harga: Rp${item.harga.toLocaleString('id-ID')}</p>
+                    <label>Jumlah: <input type="number" value="${item.jumlah}" min="1" onchange="updateJumlah('${id}', this.value)"></label>
                     <p class="subtotal">Subtotal: Rp${subtotal.toLocaleString('id-ID')}</p>
                 </div>
-                <button type="button" class="remove-btn" onclick="hapusItem('${id}')">Hapus</button>
-            `;
+                <button type="button" class="remove-btn" onclick="hapusItem('${id}')">Hapus</button>`;
             cartContainer.appendChild(itemDiv);
         }
     }
-    // Perbarui total harga di tampilan
     totalEl.textContent = "Total: Rp" + totalHarga.toLocaleString('id-ID');
-
-    // Simpan total harga ke sessionStorage juga jika diperlukan untuk halaman checkout
-    sessionStorage.setItem('totalHargaKeranjang', totalHarga);
 }
 
-// Fungsi untuk memperbarui subtotal item dan total keseluruhan saat jumlah diubah
-function updateSubtotal(id, newQuantity) {
-    const item = currentCart[id];
-    if (item) {
-        item.jumlah = parseInt(newQuantity);
-        if (item.jumlah < 1) item.jumlah = 1; // Pastikan jumlah minimal 1
-        sessionStorage.setItem('currentCart', JSON.stringify(currentCart)); // Simpan perubahan
-        renderCart(); // Render ulang untuk memperbarui subtotal dan total
+function updateJumlah(id, newQuantity) {
+    const qty = parseInt(newQuantity, 10);
+    if (currentCart[id]) {
+        currentCart[id].jumlah = (qty < 1 || isNaN(qty)) ? 1 : qty;
+        sessionStorage.setItem('currentCart', JSON.stringify(currentCart));
+        renderCart();
     }
 }
 
-// Fungsi untuk menghapus item dari keranjang
 function hapusItem(id) {
-    delete currentCart[id]; // Hapus item dari objek keranjang
-    sessionStorage.setItem('currentCart', JSON.stringify(currentCart)); // Simpan perubahan
-    renderCart(); // Render ulang tampilan
+    if (currentCart[id]) {
+        const itemName = currentCart[id].nama;
+        delete currentCart[id];
+        sessionStorage.setItem('currentCart', JSON.stringify(currentCart));
+        renderCart();
+        showNotif(`"${itemName}" dihapus.`);
+    }
 }
 
-// Fungsi untuk menyiapkan data checkout sebelum form disubmit
-if (checkoutForm) { // Pastikan form ada sebelum menambahkan event listener
-    checkoutForm.addEventListener('submit', function(event) {
-        event.preventDefault(); // Mencegah form submit default
-
+// --- PERBAIKAN FINAL FUNGSI CHECKOUT ---
+// Kita tidak lagi memantau 'submit' pada form, tapi 'click' pada tombol
+if (checkoutButton) {
+    checkoutButton.addEventListener('click', function() {
+        // 1. Validasi: Pastikan keranjang tidak kosong
         if (Object.keys(currentCart).length === 0) {
-            showNotif("Keranjang masih kosong.", "error");
-            return false;
+            showNotif("Keranjang masih kosong!", "error");
+            return; // Hentikan proses
         }
 
-        hiddenInputs.innerHTML = ""; // Bersihkan input tersembunyi sebelumnya
-        let calculatedTotal = 0; // Hitung total lagi sebelum submit
-
-        // Buat input tersembunyi untuk setiap item di keranjang
+        // 2. Isi data ke dalam input tersembunyi
+        hiddenInputs.innerHTML = "";
         for (const id in currentCart) {
-            if (currentCart.hasOwnProperty(id)) {
-                const item = currentCart[id];
-                // Pastikan data item valid sebelum menambahkannya ke input tersembunyi
-                if (!item || !item.nama || isNaN(item.harga) || isNaN(item.jumlah)) {
-                    console.error("Invalid item data during checkout preparation:", item);
-                    showNotif("Ada item yang tidak valid di keranjang. Mohon periksa kembali.", "error");
-                    return false; // Hentikan proses checkout
-                }
-
-                hiddenInputs.innerHTML += `
-                    <input type="hidden" name="menu[]" value="${htmlspecialchars(item.nama)}">
-                    <input type="hidden" name="harga[]" value="${item.harga}">
-                    <input type="hidden" name="jumlah[]" value="${item.jumlah}">
-                `;
-                calculatedTotal += item.harga * item.jumlah; // Tambahkan ke total
-            }
+            const item = currentCart[id];
+            hiddenInputs.innerHTML += `
+                <input type="hidden" name="menu[]" value="${htmlspecialchars(item.nama)}">
+                <input type="hidden" name="harga[]" value="${item.harga}">
+                <input type="hidden" name="jumlah[]" value="${item.jumlah}">
+            `;
         }
-        
-        // TAMBAHKAN INPUT TERSEMBUNYI UNTUK TOTAL BELANJA DI SINI
-        hiddenInputs.innerHTML += `<input type="hidden" name="total_belanja" value="${calculatedTotal}">`;
 
-
-        // Submit form secara manual setelah input tersembunyi ditambahkan
+        // 3. Kirim form secara manual. Ini adalah cara paling andal.
         checkoutForm.submit();
     });
 }
 
-
-// Fungsi untuk menampilkan notifikasi
 function showNotif(message, type = "success") {
     notif.textContent = message;
-    notif.className = ''; // Reset kelas
-    notif.classList.add(type); // Tambahkan kelas tipe notifikasi
+    notif.className = '';
+    notif.classList.add(type);
     notif.style.display = "block";
     notif.style.opacity = "1";
-
     setTimeout(() => {
         notif.style.opacity = "0";
-        setTimeout(() => {
-            notif.style.display = "none";
-        }, 400);
-    }, 5000);
-
-    notif.onclick = () => notif.style.display = "none";
+        setTimeout(() => { notif.style.display = "none"; }, 400);
+    }, 2000);
 }
 
-// Fungsi untuk membersihkan keranjang setelah checkout berhasil
-function clearCart() {
-    currentCart = {}; // Kosongkan objek keranjang
-    sessionStorage.removeItem('currentCart'); // Hapus dari sessionStorage
-    renderCart(); // Render ulang tampilan
-}
-
-// Helper function for HTML escaping (since we're using it in JS generated HTML)
 function htmlspecialchars(str) {
-    if (typeof str !== 'string' && !(str instanceof String)) {
-        // Jika str bukan string, konversi ke string atau kembalikan string kosong
-        console.warn("htmlspecialchars received non-string value:", str);
-        return String(str || ''); // Konversi ke string, jika null/undefined jadi string kosong
-    }
-    var map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return str.replace(/[&<>"']/g, function(m) { return map[m]; });
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(str || '').replace(/[&<>"']/g, m => map[m]);
 }
 
-// Event listener saat halaman selesai dimuat
-document.addEventListener('DOMContentLoaded', () => {
-    loadCartFromSession();
-
-    // Cek parameter URL untuk notifikasi checkout
-    const urlParams = new URLSearchParams(window.location.search);
-    const checkoutStatus = urlParams.get('checkout_status');
-    if (checkoutStatus === 'success') {
-        showNotif("Pesanan telah berhasil dipesan. Silakan menunggu pesanan Anda ✅");
-        clearCart(); // Bersihkan keranjang setelah sukses
-    } else if (checkoutStatus === 'failed') {
-        showNotif("Pesanan gagal diproses. Silakan coba lagi.", "error");
-    }
-});
+document.addEventListener('DOMContentLoaded', loadCartFromSession);

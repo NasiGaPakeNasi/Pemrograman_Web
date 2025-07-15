@@ -1,49 +1,83 @@
-<?php session_start(); ?>
+<?php
+// public/keranjang.php
+session_start(); 
+
+require_once __DIR__ . '/../app/config/database.php';
+
+// Ambil semua menu untuk dropdown "Pilih Menu"
+require_once PROJECT_ROOT . '/app/models/Menu.php';
+$menuOptions = getAllMenu($conn);
+$conn->close();
+
+// Cek status login untuk navbar
+$isLoggedIn = isset($_SESSION['user_id']);
+$username = $isLoggedIn ? $_SESSION['username'] : '';
+$isAdmin = $isLoggedIn && isset($_SESSION['is_admin']) ? ($_SESSION['is_admin'] == 1) : false;
+?>
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Registrasi</title>
-    <link rel="stylesheet" href="css/auth.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Keranjang | Warkop Bejo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/keranjang.css">
 </head>
 <body>
-    <div class="auth-container">
-        <h2>Registrasi Akun Baru</h2>
-        <form action="" method="POST">
-            <div class="form-group">
-                <label for="new_username">Username Baru</label>
-                <input type="text" id="new_username" name="new_username" required />
-            </div>
-            <div class="form-group">
-                <label for="new_password">Password Baru</label>
-                <input type="password" id="new_password" name="new_password" required />
-            </div>
-            <button type="submit" class="btn-submit">Daftar</button>
-        </form>
-        <p class="switch-auth">Sudah punya akun? <a href="login.php">Login di sini</a></p>
-<?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // SERTAKAN DULU DATABASE.PHP UNTUK MENDAPATKAN KONEKSI DAN PROJECT_ROOT
-    require_once __DIR__ . '/../app/config/database.php';
-    // SERTAKAN FILE AUTH MENGGUNAKAN PROJECT_ROOT
-    require_once PROJECT_ROOT . '/app/includes/auth.php';
-    
-    $newUsername = $_POST['new_username'];
-    $newPassword = $_POST['new_password'];
+  <div id="notif"></div>
 
-    $registerResult = registerUser($newUsername, $newPassword);
+  <header>
+    <div class="topbar">Warkop Bejo</div>
+    <nav class="navbar">
+      <div class="logo">WARKOP BEJO</div>
+      <ul class="nav-links">
+        <li><a href="menu.php">Menu</a></li>
+        <li><a href="keranjang.php" class="active">Keranjang</a></li>
+        <?php if ($isLoggedIn): ?>
+            <?php if ($isAdmin): ?>
+                <li><a href="../admin/dashboard.php">Admin Dashboard</a></li>
+            <?php else: ?>
+                <li><a href="dashboard.php">Dashboard</a></li>
+            <?php endif; ?>
+            <li><a href="logout.php">Logout (<?php echo htmlspecialchars($username); ?>)</a></li>
+        <?php else: ?>
+            <li><a href="login.php">Login</a></li>
+            <li><a href="register.php">Register</a></li>
+        <?php endif; ?>
+      </ul>
+    </nav>
+  </header>
 
-    if ($registerResult === "success") {
-        echo "<p style='color: green; text-align: center; margin-top: 15px;'>Registrasi berhasil! Silakan login.</p>";
-        header("Refresh: 3; URL=login.php"); // Redirect otomatis setelah 3 detik ke halaman login
-        exit();
-    } elseif ($registerResult === "exists") {
-        echo "<p style='color: red; text-align: center; margin-top: 15px;'>Username sudah terdaftar. Silakan gunakan username lain.</p>";
-    } else {
-        echo "<p style='color: red; text-align: center; margin-top: 15px;'>Registrasi gagal. Terjadi kesalahan.</p>";
-    }
-}
-?>
-        </div>
+  <section class="cart-section">
+    <div class="menu-select">
+      <label for="menu">Pilih Menu:</label>
+      <select id="menu">
+        <option value="" disabled selected>-- Tambah item dari menu --</option>
+        <?php foreach ($menuOptions as $item): ?>
+            <option value="<?= htmlspecialchars($item['gambar']) ?>|<?= htmlspecialchars($item['nama_menu']) ?>|<?= htmlspecialchars($item['harga']) ?>">
+                <?= htmlspecialchars($item['nama_menu']) ?> - Rp<?= number_format($item['harga'], 0, ',', '.') ?>
+            </option>
+        <?php endforeach; ?>
+      </select>
+      <button onclick="tambahKeKeranjang()">Tambah ke Keranjang</button>
+    </div>
 
+    <!-- PERBAIKAN: Form action mengarah ke checkout_controller.php -->
+    <form id="checkout-form" action="../app/controllers/checkout_controller.php" method="POST">
+      <div id="cart-container">
+        <!-- Item keranjang akan dirender oleh JavaScript di sini -->
+      </div>
+
+      <div class="cart-summary">
+        <h3 id="total">Total: Rp0</h3>
+        <button type="submit" class="checkout-btn">Checkout</button>
+      </div>
+
+      <!-- Input tersembunyi akan diisi oleh JavaScript sebelum submit -->
+      <div id="hidden-inputs"></div>
+    </form>
+  </section>
+
+  <script src="js/keranjang.js"></script>
 </body>
 </html>
