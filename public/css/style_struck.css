@@ -1,0 +1,126 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 2rem;
+  background-color: #f4f4f4;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  gap: 2rem;
+}
+
+.left, .right {
+  width: 48%;
+}
+
+h2, h3 {
+  text-align: center;
+  margin-top: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 14px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.buttons {
+  margin-top: 1rem;
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  flex: 1;
+  padding: 10px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.btn-blue {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-blue:hover {
+  background-color: #0056b3;
+}
+
+.btn-gray {
+  background-color: #ddd;
+}
+
+.btn-gray:hover {
+  background-color: #bbb;
+}
+
+.total-box {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 15px;
+  background-color: #fafafa;
+}
+
+.total-box .green {
+  background-color: #28a745;
+  color: white;
+  font-weight: bold;
+  padding: 6px;
+  border-radius: 4px;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.total-box .red {
+  background-color: #dc3545;
+  color: white;
+  font-weight: bold;
+  padding: 6px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.total-box .btn-transaksi {
+  background-color: #20c997;
+  color: white;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+.total-box .btn-transaksi:hover {
+  background-color: #138c74;
+}
+
+.info {
+  text-align: right;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #666;
+}

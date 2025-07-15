@@ -12,15 +12,12 @@
     <nav class="navbar">
       <div class="logo">WARKOP BEJO</div>
       <ul class="nav-links">
-        <li><a href="home.html">Home</a></li>
-        <li><a href="menu.html">Menu</a></li>
-        <li><a href="keranjang.html">Keranjang</a></li>
-        <li><a href="kontak.html">Kontak</a></li>
+        <li><a href="menu.php">Menu</a></li>
+        <li><a href="keranjang.php">Keranjang</a></li>
         <li><a href="login.php">Login</a></li>
       </ul>
     </nav>
   </header>
-
  <section class="hero">
   <div class="hero-overlay">
     <img src="images/Warkop Bejo 1.jpg" alt="Warkop Interior">
@@ -56,8 +53,6 @@
   <!-- Contact Section -->
   <section class="contact-section">
     <h2>Contact Us</h2>
-    <button>View More</button>
-    <div class="contacts">
       <p>Hubungi Kami:</p>
       <ul>
         <li>📘 Warkop Bejo</li>
