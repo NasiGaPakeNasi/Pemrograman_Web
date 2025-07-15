@@ -1,58 +1,80 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Warkop Bejo</title>
   <style>
     body {
       margin: 0;
-      padding: 60px;
-      background: linear-gradient(#ffffff, #ffffff);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ffffff;
+      color: #333;
     }
 
-    .header {
+    header {
+      background-color: #7b4c4c;
+      padding: 10px 20px;
+      color: white;
+    }
+
+    .navbar {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
     .logo {
-      background-color: #d14343;
-      color: white;
-      padding: 20px 40px;
       font-weight: bold;
       font-size: 24px;
-      border-radius: 8px;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
     }
 
-    .nav {
+    .nav-links {
+      list-style: none;
       display: flex;
-      gap: 20px;
+      gap: 15px;
+      padding: 0;
     }
 
-    .nav button {
-      background-color: #7b4c4c;
+    .nav-links li a {
       color: white;
-      border: none;
-      padding: 15px 30px;
-      cursor: pointer;
+      text-decoration: none;
       font-weight: bold;
-      border-radius: 12px;
-      transition: background-color 0.3s ease, transform 0.2s ease;
+      padding: 8px 14px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
     }
 
-    .nav button:hover {
+    .nav-links li a:hover {
       background-color: #5e3939;
-      transform: scale(1.05);
+    }
+
+    .hero {
+      position: relative;
+      text-align: center;
+    }
+
+    .hero img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      filter: brightness(0.8);
+    }
+
+    .hero-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
     }
 
     .main {
       display: flex;
-      margin-top: 30px;
-      gap: 40px;
       flex-wrap: wrap;
+      gap: 30px;
+      padding: 40px;
     }
 
     .menu-section {
@@ -60,90 +82,100 @@
     }
 
     .menu-title {
+      font-size: 24px;
       margin-bottom: 20px;
       font-weight: bold;
-      font-size: 22px;
-      color: #4b2e2e;
     }
 
     .menu-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      grid-gap: 20px;
+      gap: 20px;
     }
 
     .menu-item {
-      width: 100%;
-      height: 150px;
       background-color: #e0e0e0;
       border-radius: 12px;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
+      padding: 20px;
       text-align: center;
+      font-weight: bold;
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.2s, transform 0.2s;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease;
     }
 
     .menu-item:hover {
       background-color: #cde9d8;
       transform: scale(1.05);
-      cursor: pointer;
     }
 
     .cart {
       flex: 1;
-      background-color: #d3d3d3;
-      border-radius: 12px;
+      background-color: #f4f4f4;
       padding: 20px;
+      border-radius: 12px;
       min-height: 300px;
-      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .cart::before {
-      content: "Keranjang Anda";
-      font-weight: bold;
+    .cart strong {
       display: block;
       margin-bottom: 10px;
       font-size: 18px;
-      color: #333;
+    }
+
+    footer {
+      background-color: #7b4c4c;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      margin-top: 40px;
     }
 
     @media (max-width: 768px) {
       .main {
         flex-direction: column;
+        padding: 20px;
       }
 
-      .nav {
+      .nav-links {
         flex-direction: column;
-        align-items: flex-end;
         gap: 10px;
+        align-items: flex-start;
       }
 
-      .menu-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      }
-
-      .nav button {
-        padding: 10px 20px;
+      .hero img {
+        height: 200px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo">Warkop Bejo</div>
-    <div class="nav">
-      <button>Home</button>
-      <button>Menu</button>
-      <button>Keranjang</button>
-      <button>Contact</button>
-    </div>
-  </div>
 
+  <!-- Header & Navbar -->
+  <header>
+    <nav class="navbar">
+      <div class="logo">WARKOP BEJO</div>
+      <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Menu</a></li>
+        <li><a href="#">Keranjang</a></li>
+        <li><a href="#">Kontak</a></li>
+        <li><a href="#">Login</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <img src="images/Warkop Bejo 1.jpg" alt="Warkop Interior">
+    <div class="hero-text">
+      <h1>Selamat Datang di Warkop Bejo</h1>
+      <p>Nongkrong Asik 24 Jam!</p>
+    </div>
+  </section>
+
+  <!-- Menu & Cart -->
   <div class="main">
     <div class="menu-section">
       <div class="menu-title">Menu</div>
@@ -165,11 +197,19 @@
         <div class="menu-item">Kentang Goreng<br>Rp 15.000</div>
       </div>
     </div>
+
     <div class="cart">
+      <strong>Keranjang Anda</strong>
       <p>Belum ada item di keranjang.</p>
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Warkop Bejo. Nongkrong Asik 24 Jam!</p>
+  </footer>
+
+  <!-- Script -->
   <script>
     const cart = document.querySelector('.cart');
     const cartItems = {};
