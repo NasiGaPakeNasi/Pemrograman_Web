@@ -1,10 +1,13 @@
-<?php session_start(); ?>
+<?php
+session_start(); // Pastikan sesi dimulai di awal skrip
+?>
 <!DOCTYPE html>
 <html>
 
 <head>
     <title>Login</title>
-    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/auth.css"> <!-- Pastikan ini adalah CSS untuk styling form login -->
+    <!-- Hapus link ke style.css atau main.js yang tidak relevan untuk halaman login -->
 </head>
 
 <body>
@@ -23,12 +26,15 @@
         </form>
         <p class="switch-auth">Belum punya akun? <a href="register.php">Daftar di sini</a></p>
         
-        </div>
-
+    </div>
 
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once __DIR__ . '/../app/includes/auth.php';
+    // Sertakan file koneksi database pusat
+    // Path ini relatif dari public/login.php ke app/config/database.php
+    require_once __DIR__ . '/../app/config/database.php';
+    // Sertakan file auth menggunakan PROJECT_ROOT
+    require_once PROJECT_ROOT . '/app/includes/auth.php'; 
 
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -39,11 +45,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Set session
         $_SESSION['user_id'] = $loginResult['user_id'];
         $_SESSION['username'] = $loginResult['username'];
-        // Redirect ke dashboard
-        header("Location: dashboard.php");
+        $_SESSION['is_admin'] = $loginResult['is_admin']; // Simpan status admin ke sesi
+
+        // Redirect berdasarkan status admin
+        if ($_SESSION['is_admin'] == 1) {
+            // Gunakan "../" untuk naik satu level dari public/ ke root proyek, lalu masuk ke admin/
+            header("Location: ../admin/dashboard.php");
+        } else {
+            header("Location: dashboard.php"); // Redirect ke dashboard pengguna biasa (tetap di public/)
+        }
         exit();
     } else {
-        echo "<p style='color: red;'>" . $loginResult['message'] . "</p>";
+        // Tampilkan pesan error jika login gagal
+        echo "<p class='message error' style='text-align: center; margin-top: 15px;'>" . htmlspecialchars($loginResult['message']) . "</p>";
     }
 }
 ?>

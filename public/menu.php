@@ -1,9 +1,26 @@
+<?php
+// public/menu.php
+// Halaman daftar menu Warkop Bejo
+
+// Sertakan file koneksi database pusat
+require_once __DIR__ . '/../app/config/database.php';
+// Sertakan model Menu untuk mengambil data menu
+require_once __DIR__ . '/../app/models/Menu.php';
+
+// Ambil semua item menu dari database
+$menuItems = getAllMenu($conn);
+
+// Tutup koneksi database
+$conn->close();
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Warkop Bejo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menu | Warkop Bejo</title>
   <style>
+    /* Gaya CSS yang sudah ada, dipindahkan dari inline style */
     body {
       margin: 0;
       padding: 60px;
@@ -86,12 +103,13 @@
       text-align: center;
       box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.1);
       transition: background-color 0.2s, transform 0.2s;
+      /* Tambahkan cursor pointer untuk menunjukkan bisa diklik */
+      cursor: pointer;
     }
 
     .menu-item:hover {
       background-color: #cde9d8;
       transform: scale(1.05);
-      cursor: pointer;
     }
 
     .cart {
@@ -137,10 +155,11 @@
   <div class="header">
     <div class="logo">Warkop Bejo</div>
     <div class="nav">
-      <button>Home</button>
-      <button>Menu</button>
-      <button>Keranjang</button>
-      <button>Contact</button>
+      <!-- Pastikan link ini mengarah ke file yang benar -->
+      <button onclick="location.href='index.php'">Home</button>
+      <button onclick="location.href='menu.php'">Menu</button>
+      <button onclick="location.href='keranjang.php'">Keranjang</button>
+      <button onclick="location.href='#'">Contact</button>
     </div>
   </div>
 
@@ -148,21 +167,19 @@
     <div class="menu-section">
       <div class="menu-title">Menu</div>
       <div class="menu-grid">
-        <div class="menu-item">Kopi Susu<br>Rp 7.000</div>
-        <div class="menu-item">Kopi<br>Rp 5.000</div>
-        <div class="menu-item">Es Teh Manis<br>Rp 5.000</div>
-        <div class="menu-item">Es Teh Tawar<br>Rp 4.000</div>
-        <div class="menu-item">Es Jeruk<br>Rp 6.000</div>
-        <div class="menu-item">Susu Jahe<br>Rp 8.000</div>
-        <div class="menu-item">Air Mineral<br>Rp 4.000</div>
-        <div class="menu-item">Nasi Goreng<br>Rp 15.000</div>
-        <div class="menu-item">Nasi Uduk<br>Rp 12.000</div>
-        <div class="menu-item">Nasi Ayam<br>Rp 15.000</div>
-        <div class="menu-item">Nasi Telur<br>Rp 10.000</div>
-        <div class="menu-item">Indomie<br>Rp 8.000</div>
-        <div class="menu-item">Roti Bakar<br>Rp 12.000</div>
-        <div class="menu-item">Pisang Bakar<br>Rp 12.000</div>
-        <div class="menu-item">Kentang Goreng<br>Rp 15.000</div>
+        <?php
+        // Loop melalui item menu yang diambil dari database
+        if (!empty($menuItems)) {
+            foreach ($menuItems as $item) {
+                // Tambahkan data-attribute untuk ID, nama, dan harga agar mudah diakses JavaScript
+                echo "<div class='menu-item' data-id='" . htmlspecialchars($item['id_menu']) . "' data-nama='" . htmlspecialchars($item['nama_menu']) . "' data-harga='" . htmlspecialchars($item['harga']) . "'>";
+                echo htmlspecialchars($item['nama_menu']) . "<br>Rp " . number_format($item['harga'], 0, ',', '.');
+                echo "</div>";
+            }
+        } else {
+            echo "<p>Belum ada menu yang tersedia.</p>";
+        }
+        ?>
       </div>
     </div>
     <div class="cart">
@@ -171,47 +188,85 @@
   </div>
 
   <script>
+    // Pindahkan logika JavaScript ke file terpisah jika kompleks
+    // Untuk contoh ini, saya biarkan di sini dulu untuk demonstrasi
     const cart = document.querySelector('.cart');
-    const cartItems = {};
+    const cartItems = {}; // Objek untuk menyimpan item di keranjang
 
+    // Tambahkan event listener ke setiap item menu
     document.querySelectorAll('.menu-item').forEach(item => {
       item.addEventListener('click', () => {
-        const text = item.innerHTML;
-        const [nama, harga] = text.split('<br>');
+        // Ambil data dari data-attribute
+        const id = item.dataset.id;
+        const nama = item.dataset.nama;
+        const harga = parseFloat(item.dataset.harga); // Pastikan harga adalah angka
 
-        if (cartItems[nama]) {
-          cartItems[nama].jumlah += 1;
+        // Jika item sudah ada di keranjang, tingkatkan jumlahnya
+        if (cartItems[id]) {
+          cartItems[id].jumlah += 1;
         } else {
-          cartItems[nama] = {
-            harga: harga.trim(),
+          // Jika belum ada, tambahkan item baru ke keranjang
+          cartItems[id] = {
+            nama: nama,
+            harga: harga,
             jumlah: 1
           };
         }
 
-        updateCart();
+        updateCart(); // Perbarui tampilan keranjang
       });
     });
 
+    // Fungsi untuk memperbarui tampilan keranjang
     function updateCart() {
-      cart.innerHTML = '<strong>Keranjang Anda</strong><br><br>';
-      const keys = Object.keys(cartItems);
+      cart.innerHTML = '<strong>Keranjang Anda</strong><br><br>'; // Reset konten keranjang
+      const keys = Object.keys(cartItems); // Dapatkan ID item di keranjang
 
       if (keys.length === 0) {
-        cart.innerHTML += '<p>Belum ada item di keranjang.</p>';
+        cart.innerHTML += '<p>Belum ada item di keranjang.</p>'; // Jika keranjang kosong
         return;
       }
 
-      const ul = document.createElement('ul');
+      const ul = document.createElement('ul'); // Buat elemen unordered list
       ul.style.paddingLeft = '20px';
 
-      keys.forEach(nama => {
-        const item = cartItems[nama];
+      let totalKeranjang = 0; // Hitung total harga keranjang
+
+      // Loop melalui item di keranjang dan tambahkan ke daftar
+      keys.forEach(id => {
+        const item = cartItems[id];
         const li = document.createElement('li');
-        li.textContent = `${nama} (${item.jumlah}x) - ${item.harga}`;
+        const subtotal = item.harga * item.jumlah;
+        li.textContent = `${item.nama} (${item.jumlah}x) - Rp${subtotal.toLocaleString('id-ID')}`;
         ul.appendChild(li);
+        totalKeranjang += subtotal;
       });
 
-      cart.appendChild(ul);
+      cart.appendChild(ul); // Tambahkan daftar ke keranjang
+      
+      // Tampilkan total harga
+      const totalP = document.createElement('p');
+      totalP.style.fontWeight = 'bold';
+      totalP.textContent = `Total: Rp${totalKeranjang.toLocaleString('id-ID')}`;
+      cart.appendChild(totalP);
+
+      // Tambahkan tombol checkout atau link ke halaman keranjang
+      const checkoutBtn = document.createElement('button');
+      checkoutBtn.textContent = 'Lanjut ke Keranjang';
+      checkoutBtn.style.marginTop = '10px';
+      checkoutBtn.style.padding = '8px 15px';
+      checkoutBtn.style.backgroundColor = '#28a745';
+      checkoutBtn.style.color = 'white';
+      checkoutBtn.style.border = 'none';
+      checkoutBtn.style.borderRadius = '5px';
+      checkoutBtn.style.cursor = 'pointer';
+      checkoutBtn.addEventListener('click', () => {
+        // Simpan data keranjang ke sessionStorage atau localStorage
+        sessionStorage.setItem('currentCart', JSON.stringify(cartItems));
+        // Redirect ke halaman keranjang
+        window.location.href = 'keranjang.php';
+      });
+      cart.appendChild(checkoutBtn);
     }
   </script>
 </body>

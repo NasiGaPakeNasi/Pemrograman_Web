@@ -22,8 +22,10 @@
         <p class="switch-auth">Sudah punya akun? <a href="login.php">Login di sini</a></p>
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once __DIR__ . '/../app/includes/auth.php';
+    // SERTAKAN DULU DATABASE.PHP UNTUK MENDAPATKAN KONEKSI DAN PROJECT_ROOT
     require_once __DIR__ . '/../app/config/database.php';
+    // SERTAKAN FILE AUTH MENGGUNAKAN PROJECT_ROOT
+    require_once PROJECT_ROOT . '/app/includes/auth.php';
     
     $newUsername = $_POST['new_username'];
     $newPassword = $_POST['new_password'];
@@ -31,14 +33,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $registerResult = registerUser($newUsername, $newPassword);
 
     if ($registerResult === "success") {
-        echo "<p style='color: green;'>Registrasi berhasil! Silakan login.</p>";
-        // Redirect ke halaman login setelah beberapa detik
-        header("Refresh: 5; URL=index.php"); // Redirect otomatis setelah 2 detik
+        echo "<p style='color: green; text-align: center; margin-top: 15px;'>Registrasi berhasil! Silakan login.</p>";
+        header("Refresh: 3; URL=login.php"); // Redirect otomatis setelah 3 detik ke halaman login
         exit();
     } elseif ($registerResult === "exists") {
-        echo "<p style='color: red;'>Username sudah terdaftar. Silakan gunakan username lain.</p>";
+        echo "<p style='color: red; text-align: center; margin-top: 15px;'>Username sudah terdaftar. Silakan gunakan username lain.</p>";
     } else {
-        echo "<p style='color: red;'>Registrasi gagal. Terjadi kesalahan.</p>";
+        echo "<p style='color: red; text-align: center; margin-top: 15px;'>Registrasi gagal. Terjadi kesalahan.</p>";
     }
 }
 ?>

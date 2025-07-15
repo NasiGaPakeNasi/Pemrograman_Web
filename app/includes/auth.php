@@ -1,8 +1,10 @@
 <?php
-// includes/auth.php
+// app/includes/auth.php
 
-require_once __DIR__ . '/../config/database.php'; // Panggil file koneksi database
-require_once __DIR__ . '/functions.php'; // Panggil file fungsi umum
+// Pastikan file konfigurasi database dipanggil
+require_once __DIR__ . '/../config/database.php';
+// Pastikan file fungsi umum dipanggil
+require_once __DIR__ . '/functions.php';
 
 function registerUser($username, $password) {
     global $conn; // Mengakses variabel koneksi dari luar scope fungsi
@@ -26,7 +28,7 @@ function registerUser($username, $password) {
     // Hash password sebelum menyimpan ke database
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Masukkan user baru ke database
+    // Masukkan user baru ke database (default is_admin adalah 0)
     $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
     $stmt->bind_param("ss", $username, $hashed_password);
 
@@ -45,8 +47,8 @@ function loginUser($username, $password) {
     $username = sanitizeInput($username);
     $password = sanitizeInput($password);
 
-    // Ambil user dari database
-    $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
+    // Ambil user dari database, termasuk kolom is_admin
+    $stmt = $conn->prepare("SELECT id, username, password, is_admin FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -59,7 +61,8 @@ function loginUser($username, $password) {
             return [
                 'status' => 'success',
                 'user_id' => $user['id'],
-                'username' => $user['username']
+                'username' => $user['username'],
+                'is_admin' => $user['is_admin'] // Tambahkan status admin ke hasil
             ];
         } else {
             $stmt->close();
@@ -89,4 +92,23 @@ function getPurchaseHistory($userId) {
     $stmt->close();
     return $history;
 }
+
+// Fungsi baru untuk memeriksa apakah pengguna saat ini adalah admin
+function isAdmin() {
+    // Memastikan sesi sudah dimulai
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+    // Mengembalikan true jika 'is_admin' ada di sesi dan nilainya 1
+    return isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
+}
+
+// Fungsi untuk mengarahkan pengguna jika bukan admin
+function redirectToLoginIfNotAdmin() {
+    if (!isAdmin()) {
+        header("Location: ../login.php"); // Arahkan ke halaman login
+        exit();
+    }
+}
+
 ?>

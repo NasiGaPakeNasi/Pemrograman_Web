@@ -1,156 +1,194 @@
+<?php
+// public/keranjang.php
+// Halaman keranjang belanja Warkop Bejo
+
+session_start(); // Mulai sesi di awal skrip
+
+// Sertakan file koneksi database pusat
+// Path ini relatif dari public/keranjang.php ke app/config/database.php
+require_once __DIR__ . '/../app/config/database.php';
+
+// Sertakan model Cart menggunakan PROJECT_ROOT
+// PROJECT_ROOT didefinisikan di app/config/database.php
+require_once PROJECT_ROOT . '/app/models/Cart.php';
+
+// Inisialisasi variabel untuk menampung item keranjang
+$cartItems = [];
+
+// Cek apakah pengguna sudah login (untuk navbar dinamis)
+$isLoggedIn = isset($_SESSION['user_id']);
+$username = $isLoggedIn ? $_SESSION['username'] : '';
+$isAdmin = $isLoggedIn ? ($_SESSION['is_admin'] == 1) : false;
+
+// Cek jika ada data keranjang yang dikirim dari sessionStorage (dari menu.php)
+if (isset($_GET['cartData'])) {
+    $cartDataJson = $_GET['cartData'];
+    $cartItems = json_decode($cartDataJson, true);
+} 
+// PENTING: BLOK PEMROSESAN POST UNTUK CHECKOUT SUDAH DIHAPUS DARI SINI
+// KARENA SEKARANG DITANGANI SEPENUHNYA OLEH app/controllers/api/proses_checkout.php
+
+// Tutup koneksi database
+$conn->close();
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Keranjang | Warkop Bejo</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="css/keranjang.css"> <style>
+    /* Gaya CSS inline ini dipertahankan di sini untuk kemudahan, */
+    /* tapi idealnya bisa dipindahkan sepenuhnya ke public/css/keranjang.css */
 
     body {
       font-family: Arial, sans-serif;
       background-color: #f9f9f9;
     }
 
-    .topbar {
-      background-color: #0abebe;
-      color: #fff;
-      padding: 10px;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #fff;
-      padding: 10px 20px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .logo {
-      font-weight: bold;
-      font-size: 20px;
-      color: #06b664;
-    }
-
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 20px;
-    }
-
-    .nav-links li a {
-      text-decoration: none;
-      color: #17bea8;
-      font-weight: 500;
-    }
-
-    .nav-links li a.active {
-      color: #e91e63;
-      font-weight: bold;
-    }
-
     .cart-section {
       padding: 20px;
       max-width: 800px;
       margin: auto;
+      margin-top: 30px; /* Tambahkan margin-top agar tidak terlalu dekat dengan navbar */
     }
 
     .menu-select {
       margin-bottom: 20px;
+      display: flex; /* Untuk menata elemen select dan button */
+      gap: 10px;
+      align-items: center;
     }
 
-    .menu-select select,
-    .menu-select button {
+    .menu-select select {
+      flex-grow: 1; /* Agar select memenuhi ruang */
       padding: 8px;
-      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .menu-select button {
+      padding: 8px 15px;
+      background-color: #004d40; /* Warna tombol yang konsisten */
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    .menu-select button:hover {
+        background-color: #00695c;
     }
 
     .cart-item {
       display: flex;
       align-items: center;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      background: #fff;
+      padding: 15px; /* Sedikit lebih besar */
+      margin-bottom: 15px; /* Jarak antar item */
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Shadow lebih halus */
     }
 
     .cart-item img {
-      width: 80px;
-      height: 80px;
+      width: 90px; /* Ukuran gambar sedikit lebih besar */
+      height: 90px;
       object-fit: cover;
-      margin-right: 15px;
-      border-radius: 6px;
+      margin-right: 20px;
+      border-radius: 8px;
     }
 
     .item-details {
-      flex: 1;
+      flex-grow: 1;
     }
 
     .item-details h3 {
       margin-bottom: 5px;
-      font-size: 16px;
+      font-size: 18px; /* Ukuran font lebih besar */
+      color: #004d40;
+    }
+
+    .item-details p {
+        margin: 0 0 5px 0;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .item-details label {
+        font-size: 14px;
+        color: #555;
     }
 
     .item-details input[type="number"] {
-      width: 50px;
+      width: 60px; /* Lebar input jumlah */
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
       margin-left: 5px;
+      text-align: center;
     }
 
-    .remove-btn,
-    .edit-btn {
-      padding: 5px 10px;
-      margin-left: 5px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      color: white;
+    .subtotal {
+        font-weight: bold;
+        color: #333;
+        margin-top: 8px !important; /* Pastikan margin-top diterapkan */
+        font-size: 15px;
     }
 
     .remove-btn {
-      background-color: #e74c3c;
+      background-color: #dc3545; /* Merah untuk hapus */
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-left: 15px; /* Jarak dari detail item */
     }
-
-    .edit-btn {
-      background-color: #f39c12;
+    .remove-btn:hover {
+        background-color: #c82333;
     }
 
     .cart-summary {
       margin-top: 40px;
       background-color: #fff;
-      padding: 20px;
-      border: 1px solid #ccc;
+      padding: 25px; /* Padding lebih besar */
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      width: fit-content;
-      min-width: 280px;
-      margin-left: auto;
+      /* Perubahan di sini untuk menata total dan tombol secara horizontal */
+      display: flex; /* Menggunakan flexbox */
+      justify-content: space-between; /* Memisahkan total dan tombol */
+      align-items: center; /* Pusatkan secara vertikal */
+      width: 100%; /* Agar memenuhi lebar kontainer */
+      max-width: 800px; /* Batasi lebar agar tidak terlalu lebar */
+      box-sizing: border-box; /* Pastikan padding termasuk dalam lebar */
+      min-width: unset; /* Hapus min-width sebelumnya */
+      margin-left: auto; /* Tetap pusatkan jika lebar kurang dari max-width */
+      margin-right: auto;
+      border-top: 4px solid #004d40; /* Aksen hijau */
     }
-
+    .cart-summary h3 {
+        font-size: 22px;
+        color: #004d40;
+        margin-bottom: 0; /* Hapus margin-bottom agar sejajar */
+    }
+  
     .checkout-btn {
-      padding: 8px 20px;
-      background-color: #2ecc71;
+      padding: 12px 28px; /* Ukuran tombol lebih besar */
+      background-color: #28a745; /* Hijau untuk checkout */
       color: white;
+      font-weight: bold;
       border: none;
-      border-radius: 20px;
-      font-size: 14px;
+      border-radius: 30px; /* Bentuk kapsul */
+      font-size: 16px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      margin-top: 0; /* Hapus margin-top agar sejajar */
     }
-
+  
     .checkout-btn:hover {
-      background-color: #27ae60;
+      background-color: #218838;
     }
 
     #notif {
@@ -171,6 +209,10 @@
       cursor: pointer;
     }
 
+    #notif.error {
+        background-color: #e74c3c; /* Warna merah untuk notifikasi error */
+    }
+
     @keyframes slideDown {
       from {
         transform: translate(-50%, -20px);
@@ -181,59 +223,86 @@
         opacity: 1;
       }
     }
+
+    /* Media query untuk responsif jika total dan tombol perlu menumpuk di layar kecil */
+    @media (max-width: 600px) {
+        .cart-summary {
+            flex-direction: column; /* Menumpuk vertikal di layar kecil */
+            align-items: flex-start; /* Rata kiri */
+        }
+        .cart-summary h3, .checkout-btn {
+            width: 100%; /* Ambil lebar penuh */
+            text-align: center;
+            margin-top: 10px; /* Tambahkan sedikit jarak */
+        }
+        .cart-summary h3 {
+            margin-bottom: 5px;
+        }
+    }
   </style>
 </head>
 <body>
+  <div id="notif"></div>
 
-  <div id="notif">Pesanan telah berhasil dipesan. Silakan menunggu pesanan Anda ✅</div>
-
-  <div class="topbar">Warkop Bejo</div>
-  <nav class="navbar">
-    <div class="logo">WARKOP BEJO</div>
-    <ul class="nav-links">
-      <li><a href="#" class="active">Keranjang</a></li>
-      <li><a href="#">Menu</a></li>
-      <li><a href="#">Kontak</a></li>
-    </ul>
-  </nav>
+  <header>
+    <div class="topbar">Warkop Bejo</div>
+    <nav class="navbar">
+      <div class="logo">WARKOP BEJO</div>
+      <ul class="nav-links">
+        <li><a href="menu.php">Menu</a></li>
+        <li><a href="keranjang.php" class="active">Keranjang</a></li>
+        <?php if ($isLoggedIn): // Tampilkan link dashboard/logout jika sudah login ?>
+            <?php if ($isAdmin): // Tampilkan link ke dashboard admin jika admin ?>
+                <li><a href="../admin/dashboard.php">Admin Dashboard</a></li>
+            <?php else: // Tampilkan link ke dashboard pengguna biasa jika bukan admin ?>
+                <li><a href="dashboard.php">Dashboard</a></li>
+            <?php endif; ?>
+            <li><a href="logout.php">Logout (<?php echo htmlspecialchars($username); ?>)</a></li>
+        <?php else: // Tampilkan link login/register jika belum login ?>
+            <li><a href="login.php">Login</a></li>
+            <li><a href="register.php">Register</a></li>
+        <?php endif; ?>
+      </ul>
+    </nav>
+  </header>
 
   <section class="cart-section">
     <div class="menu-select">
       <label for="menu">Pilih Menu:</label>
       <select id="menu">
-        
-        <option value="image/Indocafe.jpg|Indocafe|5000">Indocafe - Rp5.000</option>
-        <option value="image/Good Day Cappuccino.jpeg|Good Day Cappuccino|6000">Good Day Cappuccino - Rp6.000</option>
-        <option value="image/Good Day Moccacino.jpg|Good Day Moccacino|6000">Good Day Moccacino - Rp6.000</option>
-        <option value="image/Kopi Hitam Kapal Api.jpg|Kopi Hitam Kapal Api|4000">Kopi Hitam Kapal Api - Rp4.000</option>
-        <option value="image/Americano.jpg|Americano|18000">Americano - Rp18.000</option>
-        <option value="image/Creamy Latte.jpg|Creamy Latte|22000">Creamy Latte - Rp22.000</option>
-        <option value="image/Coffe Latte.jpg|Coffe Latte|20000">Coffe Latte - Rp20.000</option>
-        <option value="image/Es Teh Manis.jpg|Es Teh Manis|5000">Es Teh Manis - Rp5.000</option>
-        <option value="image/Es Nutrisari.jpeg|Es Nutrisari|5000">Es Nutrisari - Rp5.000</option>
-        <option value="image/Es Teh Tarik.jpeg|Es Teh Tarik|7000">Es Teh Tarik - Rp7.000</option>
-        <option value="image/Es Jeruk.jpg|Es Jeruk|7000">Es Jeruk - Rp7.000</option>
-        <option value="image/Jeruk Panas.jpg|Jeruk Panas|7000">Jeruk Panas - Rp5.000</option>
-        <option value="Iimage/Indomie Goreng.jpg|Indomie Goreng|10000">Indomie Goreng - Rp10.000</option>
-        <option value="image/Indomie Kuah Soto.jpg|Indomie Kuah Soto|10000">Indomie Kuah Soto - Rp10.000</option>
-        <option value="image/Indomie Kuah Ayam Bawang.jpg|Indomie Kuah Ayam Bawang|10000">Indomie Kuah Ayam Bawang - Rp10.000</option>
-        <option value="Iimage/Indomie Kuah Kari Ayam.jpg|Indomie Kuah Kari Ayam|10000">Indomie Kuah Kari Ayam - Rp10.000</option>
-        <option value="image/Telor,sosis/bakso.jpg|Telor,sosis/bakso|5000">Telor,sosis/bakso - Rp5.000</option>
-        <option value="image/Pisang Goreng Cokelat Keju.jpg|Pisang Goreng Cokelat Keju|15000">Pisang Goreng Cokelat Keju- Rp15.000</option>
-        <option value="image/Kentang Goreng.jpg|Kentang Goreng|10000">Kentang Goreng - Rp10.000</option>
-        <option value="image/Otak-otak Goreng.jpg|Otak-otak Goreng|10000">Otak-otak Goreng - Rp10.000</option>
-        <option value="image/Sosis goreng.jpg|Sosis goreng|10000">Sosis goreng - Rp10.000</option>
-        <option value="image/Nugget.jpg|Nugget|10000">Nugget - Rp10.000</option>
-        <option value="image/Nasi Goreng Biasa.jpg|Nasi Goreng Biasa|15000">Nasi Goreng Biasa - Rp15.000</option>
-        <option value="image/Nasi Goreng Spesial.jpg|Nasi Goreng Spesial|20000">Nasi Goreng Spesial - Rp20.000</option>
-        <option value="image/Nasi Goreng Sosis/bakso.jpg|Nasi Goreng Sosis/bakso|17000">Nasi Goreng Sosis/bakso - Rp17.000</option>
-        <option value="image/Nasi Goreng Ati Ampela.jpg|Nasi Goreng Ati Ampela|17000">Nasi Goreng Ati Ampela - Rp17.000</option>
+        <option value="images/Indocafe.jpg|Indocafe|5000">Indocafe - Rp5.000</option>
+        <option value="images/Good Day Cappuccino.jpeg|Good Day Cappuccino|6000">Good Day Cappuccino - Rp6.000</option>
+        <option value="images/Good Day Moccacino.jpg|Good Day Moccacino|6000">Good Day Moccacino - Rp6.000</option>
+        <option value="images/Kopi Hitam Kapal Api.jpg|Kopi Hitam Kapal Api|4000">Kopi Hitam Kapal Api - Rp4.000</option>
+        <option value="images/Americano.jpg|Americano|18000">Americano - Rp18.000</option>
+        <option value="images/Creamy Latte.jpg|Creamy Latte|22000">Creamy Latte - Rp22.000</option>
+        <option value="images/Coffe Latte.jpg|Coffe Latte|20000">Coffe Latte - Rp20.000</option>
+        <option value="images/Es Teh Manis.jpg|Es Teh Manis|5000">Es Teh Manis - Rp5.000</option>
+        <option value="images/Es Nutrisari.jpeg|Es Nutrisari|5000">Es Nutrisari - Rp5.000</option>
+        <option value="images/Es Teh Tarik.jpeg|Es Teh Tarik|7000">Es Teh Tarik - Rp7.000</option>
+        <option value="images/Es Jeruk.jpg|Es Jeruk|7000">Es Jeruk - Rp7.000</option>
+        <option value="images/Jeruk Panas.jpg|Jeruk Panas|7000">Jeruk Panas - Rp5.000</option>
+        <option value="images/Indomie Goreng.jpg|Indomie Goreng|10000">Indomie Goreng - Rp10.000</option>
+        <option value="images/Indomie Kuah Soto.jpg|Indomie Kuah Soto|10000">Indomie Kuah Soto - Rp10.000</option>
+        <option value="images/Indomie Kuah Ayam Bawang.jpg|Indomie Kuah Ayam Bawang|10000">Indomie Kuah Ayam Bawang - Rp10.000</option>
+        <option value="images/Indomie Kuah Kari Ayam.jpg|Indomie Kuah Kari Ayam|10000">Indomie Kuah Kari Ayam - Rp10.000</option>
+        <option value="images/Telor,sosis/bakso.jpg|Telor,sosis/bakso|5000">Telor,sosis/bakso - Rp5.000</option>
+        <option value="images/Pisang Goreng Cokelat Keju.jpg|Pisang Goreng Cokelat Keju|15000">Pisang Goreng Cokelat Keju- Rp15.000</option>
+        <option value="images/Kentang Goreng.jpg|Kentang Goreng|10000">Kentang Goreng - Rp10.000</option>
+        <option value="images/Otak-otak Goreng.jpg|Otak-otak Goreng|10000">Otak-otak Goreng - Rp10.000</option>
+        <option value="images/Sosis goreng.jpg|Sosis goreng|10000">Sosis goreng - Rp10.000</option>
+        <option value="images/Nugget.jpg|Nugget|10000">Nugget - Rp10.000</option>
+        <option value="images/Nasi Goreng Biasa.jpg|Nasi Goreng Biasa|15000">Nasi Goreng Biasa - Rp15.000</option>
+        <option value="images/Nasi Goreng Spesial.jpg|Nasi Goreng Spesial|20000">Nasi Goreng Spesial - Rp20.000</option>
+        <option value="images/Nasi Goreng Sosis/bakso.jpg|Nasi Goreng Sosis/bakso|17000">Nasi Goreng Sosis/bakso - Rp17000</option>
+        <option value="images/Nasi Goreng Ati Ampela.jpg|Nasi Goreng Ati Ampela|17000">Nasi Goreng Ati Ampela - Rp17.000</option>
       </select>
       <button onclick="tambahKeKeranjang()">Tambah ke Keranjang</button>
     </div>
 
-    <form onsubmit="return prepareCheckout()">
-      <div id="cart-container"></div>
+    <form id="checkout-form" action="../app/controllers/api/proses_checkout.php" method="POST">
+      <div id="cart-container">
+        </div>
 
       <div class="cart-summary">
         <h3 id="total">Total: Rp0</h3>
@@ -244,135 +313,7 @@
     </form>
   </section>
 
-  <script>
-    const cartContainer = document.getElementById("cart-container");
-    const totalEl = document.getElementById("total");
-    const hiddenInputs = document.getElementById("hidden-inputs");
-    const notif = document.getElementById("notif");
-    let totalHarga = 0;
-
-    function tambahKeKeranjang() {
-      const select = document.getElementById("menu");
-      const [img, nama, harga] = select.value.split("|");
-      const id = Date.now();
-
-      const item = document.createElement("div");
-      item.className = "cart-item";
-      item.dataset.id = id;
-
-      item.innerHTML = `
-        <img src="${img}" alt="${nama}">
-        <div class="item-details">
-          <h3>${nama}</h3>
-          <p>Harga: Rp${parseInt(harga).toLocaleString()}</p>
-          <label>Jumlah:
-            <input type="number" value="1" min="1" disabled onchange="updateSubtotal(this, ${harga})">
-          </label>
-          <p class="subtotal">Subtotal: Rp${parseInt(harga).toLocaleString()}</p>
-        </div>
-        <button type="button" class="edit-btn" onclick="editItem(this, ${harga})">Edit</button>
-        <button type="button" class="remove-btn" onclick="hapusItem(this, ${harga})">Hapus</button>
-      `;
-
-      cartContainer.appendChild(item);
-      totalHarga += parseInt(harga);
-      updateTotal();
-    }
-
-    function updateSubtotal(input, harga) {
-      const jumlah = input.value;
-      const subtotal = harga * jumlah;
-      const subtotalEl = input.closest(".item-details").querySelector(".subtotal");
-      subtotalEl.textContent = "Subtotal: Rp" + subtotal.toLocaleString();
-      hitungUlangTotal();
-    }
-
-    function hapusItem(button, harga) {
-      const item = button.parentElement;
-      const jumlah = item.querySelector("input").value;
-      totalHarga -= harga * jumlah;
-      item.remove();
-      updateTotal();
-    }
-
-    function editItem(btn, harga) {
-      const item = btn.parentElement;
-      const qtyInput = item.querySelector('input[type="number"]');
-
-      if (qtyInput.disabled) {
-        qtyInput.disabled = false;
-        qtyInput.focus();
-        btn.textContent = "Simpan";
-      } else {
-        qtyInput.disabled = true;
-        btn.textContent = "Edit";
-        updateSubtotal(qtyInput, harga);
-        hitungUlangTotal();
-      }
-    }
-
-    function hitungUlangTotal() {
-      totalHarga = 0;
-      const items = document.querySelectorAll(".cart-item");
-      items.forEach(item => {
-        const harga = parseInt(item.querySelector("p").textContent.replace("Harga: Rp", "").replace(/\./g, ""));
-        const jumlah = item.querySelector("input").value;
-        totalHarga += harga * jumlah;
-      });
-      updateTotal();
-    }
-
-    function updateTotal() {
-      totalEl.textContent = "Total: Rp" + totalHarga.toLocaleString();
-    }
-
-    function prepareCheckout() {
-      const items = document.querySelectorAll(".cart-item");
-
-      if (items.length === 0) {
-        alert("Keranjang masih kosong.");
-        return false;
-      }
-
-      hiddenInputs.innerHTML = "";
-      items.forEach((item) => {
-        const nama = item.querySelector("h3").textContent;
-        const harga = parseInt(item.querySelector("p").textContent.replace("Harga: Rp", "").replace(/\./g, ""));
-        const jumlah = item.querySelector("input").value;
-
-        hiddenInputs.innerHTML += `
-          <input type="hidden" name="menu[]" value="${nama}">
-          <input type="hidden" name="harga[]" value="${harga}">
-          <input type="hidden" name="jumlah[]" value="${jumlah}">
-        `;
-      });
-
-      showNotif();
-      clearCart();
-
-      return false;
-    }
-
-    function clearCart() {
-      cartContainer.innerHTML = "";
-      hiddenInputs.innerHTML = "";
-      totalHarga = 0;
-      updateTotal();
-    }
-
-    function showNotif() {
-      notif.style.display = "block";
-      notif.style.opacity = "1";
-
-      setTimeout(() => {
-        notif.style.opacity = "0";
-        setTimeout(() => {
-          notif.style.display = "none";
-        }, 400);
-      }, 5000);
-
-      notif.onclick = () => notif.style.display = "none";
-    }
-  </script>
+  <script src="js/keranjang.js"></script>
 </body>
 </html>
+          
