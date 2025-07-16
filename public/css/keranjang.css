@@ -1,67 +1,148 @@
+/* public/css/keranjang.css */
+
 .cart-section {
-    padding: 40px;
-    background-color: #f9f9f9;
-  }
-  
-  .cart-section h2 {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  
-  .cart-container {
-    max-width: 900px;
-    margin: auto;
-  }
-  
-  .cart-item {
-    display: flex;
-    background: #fff;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(136, 25, 25, 0.1);
-  }
-  
-  .cart-item img {
-    width: 120px;
-    height: auto;
-    margin-right: 20px;
-    border-radius: 8px;
-  }
-  
-  .item-details {
-    flex-grow: 1;
-  }
-  
-  .item-details input {
-    width: 60px;
-    margin-top: 5px;
-  }
-  
-  .remove-btn {
-    background: #ff4d4d;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .cart-summary {
-    text-align: right;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .checkout-btn {
-    background-color: #00704a;
-    color: white;
-    padding: 12px 24px;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 10px;
-  }  
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: auto;
+}
+
+.cart-section h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #004d40;
+}
+
+.cart-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+.menu-select {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.menu-select label {
+  font-weight: 500;
+}
+
+.menu-select select {
+  flex-grow: 1;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.menu-select button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  background-color: #007bff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu-select button:hover {
+  background-color: #0056b3;
+}
+
+.cart-item {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  /* PERBAIKAN UI: Menengahkan semua item secara vertikal */
+  align-items: center;
+}
+
+.cart-item img {
+  width: 90px;
+  height: 90px;
+  /* PERBAIKAN UI: Mencegah gambar gepeng */
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0; /* Mencegah gambar menyusut */
+}
+
+.item-details {
+  flex-grow: 1;
+}
+
+.item-details h3 {
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.item-details p {
+  margin: 4px 0;
+  color: #666;
+}
+
+.item-details input[type="number"] {
+  width: 60px;
+  padding: 5px;
+  text-align: center;
+}
+
+.subtotal {
+  font-weight: bold;
+  margin-top: 8px !important;
+}
+
+.remove-btn {
+  background: #dc3545;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  /* PERBAIKAN UI: Mencegah tombol meregang */
+  align-self: center; 
+  height: fit-content; /* Sesuaikan tinggi tombol dengan isinya */
+}
+
+.remove-btn:hover {
+  background-color: #c82333;
+}
+
+.cart-summary {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-top: 2px solid #004d40;
+  border-radius: 0 0 8px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-summary h3 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.checkout-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 12px 24px;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.checkout-btn:hover {
+  background-color: #218838;
+}

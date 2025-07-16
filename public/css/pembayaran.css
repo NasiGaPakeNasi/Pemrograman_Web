@@ -1,0 +1,92 @@
+/* public/css/pembayaran.css */
+/* Gaya khusus untuk halaman pembayaran */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+}
+
+.payment-container {
+    max-width: 500px;
+    margin: 60px auto;
+    background-color: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+    border-top: 4px solid #004d40;
+    text-align: center;
+}
+
+.payment-container h2 {
+    color: #004d40;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+
+.payment-details p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.payment-details .total-amount {
+    font-size: 36px;
+    font-weight: 700;
+    color: #28a745;
+    margin-bottom: 30px;
+    letter-spacing: -1px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 18px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.form-group input[type="number"]:focus {
+    outline: none;
+    border-color: #00796b;
+    box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.1);
+}
+
+.btn-pay {
+    background-color: #004d40;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+}
+
+.btn-pay:hover {
+    background-color: #00695c;
+    transform: translateY(-2px);
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
