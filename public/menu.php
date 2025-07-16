@@ -2,16 +2,28 @@
 // public/menu.php
 // Halaman daftar menu Warkop Bejo
 
+session_start(); // Mulai sesi untuk navbar dinamis
+
 // Sertakan file koneksi database pusat
-require_once __DIR__ . '/../app/config/database.php';
-// Sertakan model Menu untuk mengambil data menu
-require_once __DIR__ . '/../app/models/Menu.php';
+// Path ini relatif dari public/menu.php ke app/config/database.php
+// Di dalam database.php, konstanta PROJECT_ROOT akan didefinisikan.
+require_once __DIR__ . '/../app/config/database.php'; 
+
+// Sertakan model Menu menggunakan PROJECT_ROOT
+// PROJECT_ROOT akan membantu memastikan path selalu benar dari mana pun file ini diakses
+require_once PROJECT_ROOT . '/app/models/Menu.php';
 
 // Ambil semua item menu dari database
 $menuItems = getAllMenu($conn);
 
 // Tutup koneksi database
 $conn->close();
+
+// Cek apakah pengguna sudah login (untuk menampilkan navbar dinamis)
+$isLoggedIn = isset($_SESSION['user_id']);
+$username = $isLoggedIn ? $_SESSION['username'] : '';
+$isAdmin = $isLoggedIn ? ($_SESSION['is_admin'] == 1) : false;
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -19,50 +31,20 @@ $conn->close();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Menu | Warkop Bejo</title>
+  <link rel="stylesheet" href="css/style.css"> <!-- Menggunakan style.css untuk navbar dan gaya umum -->
   <style>
-    /* Gaya CSS yang sudah ada, dipindahkan dari inline style */
+    /* Gaya CSS yang dioptimalkan untuk halaman menu */
+    /* Beberapa gaya mungkin sudah ada di style.css, bisa dihapus duplikasinya di sini */
     body {
       margin: 0;
-      padding: 60px;
+      padding-top: 20px; /* Sesuaikan padding-top agar tidak tertutup navbar */
       background: linear-gradient(#ffffff, #ffffff);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    /* Header lama yang tidak lagi relevan (jika ada) disembunyikan */
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-
-    .logo {
-      background-color: #d14343;
-      color: white;
-      padding: 20px 40px;
-      font-weight: bold;
-      font-size: 24px;
-      border-radius: 8px;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .nav {
-      display: flex;
-      gap: 20px;
-    }
-
-    .nav button {
-      background-color: #7b4c4c;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      cursor: pointer;
-      font-weight: bold;
-      border-radius: 12px;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-    .nav button:hover {
-      background-color: #5e3939;
-      transform: scale(1.05);
+        display: none;
     }
 
     .main {
@@ -70,98 +52,169 @@ $conn->close();
       margin-top: 30px;
       gap: 40px;
       flex-wrap: wrap;
+      max-width: 1200px; /* Batasi lebar agar konsisten */
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 20px; /* Padding di sisi */
     }
 
     .menu-section {
       flex: 2;
+      min-width: 300px; /* Agar tidak terlalu kecil di layar sedang */
     }
 
     .menu-title {
       margin-bottom: 20px;
       font-weight: bold;
-      font-size: 22px;
-      color: #4b2e2e;
+      font-size: 28px; /* Ukuran font lebih besar */
+      color: #004d40; /* Warna konsisten */
+      text-align: center; /* Pusatkan judul */
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee; /* Garis bawah */
     }
 
     .menu-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      grid-gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Ukuran item lebih besar */
+      grid-gap: 25px; /* Jarak antar item */
     }
 
     .menu-item {
       width: 100%;
-      height: 150px;
-      background-color: #e0e0e0;
+      height: 180px; /* Tinggi item lebih besar */
+      background-color: white; /* Latar belakang putih */
       border-radius: 12px;
-      padding: 8px;
+      padding: 15px; /* Padding lebih besar */
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       font-weight: bold;
       text-align: center;
-      box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Shadow lebih menonjol */
       transition: background-color 0.2s, transform 0.2s;
-      /* Tambahkan cursor pointer untuk menunjukkan bisa diklik */
       cursor: pointer;
     }
 
     .menu-item:hover {
-      background-color: #cde9d8;
-      transform: scale(1.05);
+      background-color: #e0f2f1; /* Warna hover lebih cerah */
+      transform: translateY(-5px); /* Sedikit naik */
+    }
+    
+    .menu-item img { /* Tambahkan gaya untuk gambar jika ada di menu-item */
+        max-width: 80px;
+        max-height: 80px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .menu-item h3 { /* Gaya untuk nama menu */
+        font-size: 1.1em;
+        margin-bottom: 5px;
+        color: #004d40;
+    }
+
+    .menu-item p { /* Gaya untuk harga */
+        font-size: 0.9em;
+        color: #666;
     }
 
     .cart {
       flex: 1;
-      background-color: #d3d3d3;
+      background-color: white; /* Latar belakang putih */
       border-radius: 12px;
-      padding: 20px;
+      padding: 25px; /* Padding lebih besar */
       min-height: 300px;
-      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-top: 4px solid #004d40; /* Aksen hijau */
     }
 
-    .cart::before {
-      content: "Keranjang Anda";
-      font-weight: bold;
-      display: block;
-      margin-bottom: 10px;
-      font-size: 18px;
-      color: #333;
+    .cart strong {
+        display: block;
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 20px;
+        color: #004d40;
+    }
+
+    .cart ul {
+        list-style: none; /* Hapus bullet point */
+        padding-left: 0;
+        margin-bottom: 15px;
+    }
+
+    .cart li {
+        padding: 8px 0;
+        border-bottom: 1px dashed #eee;
+        font-size: 15px;
+        color: #555;
+    }
+
+    .cart li:last-child {
+        border-bottom: none;
+    }
+
+    .cart p {
+        margin: 0;
+    }
+
+    .cart button {
+        width: 100%;
+        padding: 10px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 15px;
+    }
+
+    .cart button:hover {
+        background-color: #218838;
     }
 
     @media (max-width: 768px) {
       .main {
         flex-direction: column;
+        padding: 20px;
       }
 
-      .nav {
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 10px;
+      .admin-nav button { /* Perbaikan jika menggunakan admin-nav di menu.php */
+        padding: 10px 20px;
       }
 
       .menu-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      }
-
-      .nav button {
-        padding: 10px 20px;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        grid-gap: 15px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo">Warkop Bejo</div>
-    <div class="nav">
-      <!-- Pastikan link ini mengarah ke file yang benar -->
-      <button onclick="location.href='index.php'">Home</button>
-      <button onclick="location.href='menu.php'">Menu</button>
-      <button onclick="location.href='keranjang.php'">Keranjang</button>
-      <button onclick="location.href='#'">Contact</button>
-    </div>
-  </div>
+  <header>
+    <div class="topbar">Warkop Bejo</div>
+    <nav class="navbar">
+      <div class="logo">WARKOP BEJO</div>
+      <ul class="nav-links">
+        <li><a href="menu.php" class="active">Menu</a></li>
+        <li><a href="keranjang.php">Keranjang</a></li>
+        <?php if ($isLoggedIn): // Tampilkan link dashboard/logout jika sudah login ?>
+            <?php if ($isAdmin): // Tampilkan link ke dashboard admin jika admin ?>
+                <li><a href="../admin/dashboard.php">Admin Dashboard</a></li>
+            <?php else: // Tampilkan link ke dashboard pengguna biasa jika bukan admin ?>
+                <li><a href="dashboard.php">Dashboard</a></li>
+            <?php endif; ?>
+            <li><a href="logout.php">Logout (<?php echo htmlspecialchars($username); ?>)</a></li>
+        <?php else: // Tampilkan link login/register jika belum login ?>
+            <li><a href="login.php">Login</a></li>
+            <li><a href="register.php">Register</a></li>
+        <?php endif; ?>
+      </ul>
+    </nav>
+  </header>
 
   <div class="main">
     <div class="menu-section">
@@ -172,8 +225,14 @@ $conn->close();
         if (!empty($menuItems)) {
             foreach ($menuItems as $item) {
                 // Tambahkan data-attribute untuk ID, nama, dan harga agar mudah diakses JavaScript
-                echo "<div class='menu-item' data-id='" . htmlspecialchars($item['id_menu']) . "' data-nama='" . htmlspecialchars($item['nama_menu']) . "' data-harga='" . htmlspecialchars($item['harga']) . "'>";
-                echo htmlspecialchars($item['nama_menu']) . "<br>Rp " . number_format($item['harga'], 0, ',', '.');
+                // Menggunakan ID menu dari database untuk identifikasi yang lebih baik
+                echo "<div class='menu-item' data-id='" . htmlspecialchars($item['id_menu']) . "' data-nama='" . htmlspecialchars($item['nama_menu']) . "' data-harga='" . htmlspecialchars($item['harga']) . "' data-gambar='" . htmlspecialchars($item['gambar']) . "'>";
+                // Tampilkan gambar jika ada
+                if (!empty($item['gambar'])) {
+                    echo "<img src='" . htmlspecialchars($item['gambar']) . "' alt='" . htmlspecialchars($item['nama_menu']) . "'>";
+                }
+                echo "<h3>" . htmlspecialchars($item['nama_menu']) . "</h3>";
+                echo "<p>Rp " . number_format($item['harga'], 0, ',', '.') . "</p>";
                 echo "</div>";
             }
         } else {
@@ -183,74 +242,81 @@ $conn->close();
       </div>
     </div>
     <div class="cart">
+      <strong>Keranjang Anda</strong><br><br>
       <p>Belum ada item di keranjang.</p>
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Warkop Bejo. Nongkrong Asik 24 Jam!</p>
+  </footer>
+
+  <!-- Script -->
   <script>
     // Pindahkan logika JavaScript ke file terpisah jika kompleks
     // Untuk contoh ini, saya biarkan di sini dulu untuk demonstrasi
     const cart = document.querySelector('.cart');
-    const cartItems = {}; // Objek untuk menyimpan item di keranjang
+    const cartItems = {};
 
     // Tambahkan event listener ke setiap item menu
     document.querySelectorAll('.menu-item').forEach(item => {
       item.addEventListener('click', () => {
-        // Ambil data dari data-attribute
         const id = item.dataset.id;
         const nama = item.dataset.nama;
-        const harga = parseFloat(item.dataset.harga); // Pastikan harga adalah angka
+        const harga = parseFloat(item.dataset.harga);
+        const gambar = item.dataset.gambar; // Ambil path gambar
 
-        // Jika item sudah ada di keranjang, tingkatkan jumlahnya
         if (cartItems[id]) {
           cartItems[id].jumlah += 1;
         } else {
-          // Jika belum ada, tambahkan item baru ke keranjang
           cartItems[id] = {
             nama: nama,
             harga: harga,
-            jumlah: 1
+            jumlah: 1,
+            gambar: gambar // Simpan path gambar di keranjang
           };
         }
 
-        updateCart(); // Perbarui tampilan keranjang
+        updateCart();
       });
     });
 
     // Fungsi untuk memperbarui tampilan keranjang
     function updateCart() {
-      cart.innerHTML = '<strong>Keranjang Anda</strong><br><br>'; // Reset konten keranjang
-      const keys = Object.keys(cartItems); // Dapatkan ID item di keranjang
+      cart.innerHTML = '<strong>Keranjang Anda</strong><br><br>';
+      const keys = Object.keys(cartItems);
 
       if (keys.length === 0) {
-        cart.innerHTML += '<p>Belum ada item di keranjang.</p>'; // Jika keranjang kosong
+        cart.innerHTML += '<p>Belum ada item di keranjang.</p>';
         return;
       }
 
-      const ul = document.createElement('ul'); // Buat elemen unordered list
-      ul.style.paddingLeft = '20px';
+      const ul = document.createElement('ul');
+      ul.style.paddingLeft = '0'; // Hapus padding default ul
 
-      let totalKeranjang = 0; // Hitung total harga keranjang
-
-      // Loop melalui item di keranjang dan tambahkan ke daftar
       keys.forEach(id => {
         const item = cartItems[id];
-        const li = document.createElement('li');
         const subtotal = item.harga * item.jumlah;
-        li.textContent = `${item.nama} (${item.jumlah}x) - Rp${subtotal.toLocaleString('id-ID')}`;
+        // Tampilkan gambar kecil di item keranjang (opsional)
+        // Perbaikan path gambar di sini: tambahkan "../public/" jika gambar disimpan relatif dari root proyek
+        const itemImageSrc = item.gambar ? (item.gambar.startsWith('images/') ? '../public/' + item.gambar : item.gambar) : '';
+        const itemImage = itemImageSrc ? `<img src="${itemImageSrc}" alt="${item.nama}" style="width:30px; height:30px; object-fit:cover; border-radius:3px; margin-right:10px;">` : '';
+        
+        li = document.createElement('li');
+        li.innerHTML = `${itemImage} ${item.nama} (${item.jumlah}x) - Rp${subtotal.toLocaleString('id-ID')}`;
+        li.style.display = 'flex';
+        li.style.alignItems = 'center';
         ul.appendChild(li);
-        totalKeranjang += subtotal;
       });
 
-      cart.appendChild(ul); // Tambahkan daftar ke keranjang
+      cart.appendChild(ul);
       
-      // Tampilkan total harga
       const totalP = document.createElement('p');
       totalP.style.fontWeight = 'bold';
-      totalP.textContent = `Total: Rp${totalKeranjang.toLocaleString('id-ID')}`;
+      totalP.textContent = `Total: Rp${Object.values(cartItems).reduce((sum, item) => sum + (item.harga * item.jumlah), 0).toLocaleString('id-ID')}`;
       cart.appendChild(totalP);
 
-      // Tambahkan tombol checkout atau link ke halaman keranjang
       const checkoutBtn = document.createElement('button');
       checkoutBtn.textContent = 'Lanjut ke Keranjang';
       checkoutBtn.style.marginTop = '10px';

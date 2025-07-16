@@ -1,40 +1,30 @@
 <?php
 // app/config/database.php
-// Konfigurasi database pusat dan konstanta global untuk aplikasi Warkop Bejo
-
-// --- PERBAIKAN: Menentukan BASE_URL secara dinamis ---
-// Ini membuat semua link dan redirect bekerja dengan benar di lingkungan mana pun.
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
-$host = $_SERVER['HTTP_HOST'];
-// Mengasumsikan proyek berada di dalam folder 'Pemrograman_Web-Final'
-$script_name = str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
-// Menghapus subdirektori spesifik (seperti 'app/controllers') untuk mendapatkan root proyek
-$project_folder = preg_replace('~(app|public)/.*~', '', $script_name);
-
-define('BASE_URL', $protocol . '://' . $host . $project_folder);
-
+// Konfigurasi database pusat untuk aplikasi Warkop Bejo
 
 // Definisikan konstanta PROJECT_ROOT
+// Ini akan menjadi jalur absolut ke direktori utama proyek (Pemrograman_Web/)
+// dirname(__DIR__) dari app/config/ akan membawa kita ke app/, lalu dirname lagi ke root proyek
 define('PROJECT_ROOT', dirname(dirname(__DIR__)));
 
 // Definisikan konstanta koneksi database
-define('DB_SERVER', 'if0_39473937_warkop');
-define('DB_USERNAME', 'if0_39473937');
-define('DB_PASSWORD', 'T7hTs0tbGK76v');
-define('DB_NAME', 'if0_39473937_warkop');
+define('DB_SERVER', 'localhost');   // PERBAIKAN PENTING DI SINI: Pastikan ini 'localhost'
+define('DB_USERNAME', 'root');   // Username database Anda
+define('DB_PASSWORD', '');       // Password database Anda (kosong jika tidak ada)
+define('DB_NAME', 'warkop_bejo_db'); // Pastikan ini adalah nama database yang Anda gunakan
 
 // Buat koneksi ke database
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
 // Cek koneksi
 if ($conn->connect_error) {
+    // Jika koneksi gagal, hentikan eksekusi skrip dan tampilkan pesan error
     die("Koneksi database gagal: " . $conn->connect_error);
 }
 
-// Set karakter set untuk koneksi
+// Set karakter set untuk koneksi (penting untuk mencegah masalah encoding)
 $conn->set_charset("utf8mb4");
 
-ini_set('display_errors', 0);
-error_reporting(0);
+// Catatan: Variabel $conn dan konstanta PROJECT_ROOT akan tersedia
+// di file mana pun yang menyertakan database.php
 ?>
-
