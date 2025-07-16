@@ -18,10 +18,10 @@ define('BASE_URL', $protocol . '://' . $host . $project_folder);
 define('PROJECT_ROOT', dirname(dirname(__DIR__)));
 
 // Definisikan konstanta koneksi database
-define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '');
-define('DB_NAME', 'warkop_bejo_db');
+define('DB_SERVER', 'if0_39473937_warkop');
+define('DB_USERNAME', 'if0_39473937');
+define('DB_PASSWORD', 'T7hTs0tbGK76v');
+define('DB_NAME', 'if0_39473937_warkop');
 
 // Buat koneksi ke database
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
