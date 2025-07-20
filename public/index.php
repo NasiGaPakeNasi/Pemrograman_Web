@@ -1,5 +1,9 @@
 <?php
 // public/index.php
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 
 // Memuat file konfigurasi untuk BASE_URL dan koneksi DB

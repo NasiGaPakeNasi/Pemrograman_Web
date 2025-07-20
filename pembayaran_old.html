@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pembayaran Warkop Futuristik</title>
+
+  <!-- Menggunakan font Orbitron dari Google Fonts untuk kesan digital -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+
+  <style>
+    /* --- Styling Umum Body --- */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif; /* Font futuristik */
+      background: radial-gradient(circle at top, #0f0f0f, #1a1a1a); /* Background gelap modern */
+      color: #00ffcc; /* Warna teks neon */
+    }
+
+    /* --- Container Utama Form --- */
+    .container {
+      max-width: 480px;
+      margin: 80px auto;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.75); /* Transparan sedikit */
+      border: 1px solid #00ffcc;
+      border-radius: 20px;
+      box-shadow: 0 0 20px #00ffcc33; /* Efek glow */
+      backdrop-filter: blur(6px); /* Blur untuk efek kaca */
+    }
+
+    h2 {
+      text-align: center;
+      color: #00ffee;
+      text-shadow: 0 0 10px #00ffee;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #88ffee;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      background: #1c1c1c;
+      border: 1px solid #00ffcc88;
+      border-radius: 10px;
+      color: #00ffcc;
+    }
+
+    .payment-methods {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .method {
+      width: 90px;
+      padding: 10px;
+      background: #111;
+      border: 1px solid #00ffcc44;
+      text-align: center;
+      border-radius: 10px;
+      margin: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .method:hover, .method.selected {
+      border-color: #00ffee;
+      background-color: #00ffcc22;
+      box-shadow: 0 0 8px #00ffcc99;
+    }
+
+    .method img {
+      width: 30px;
+      margin-bottom: 6px;
+    }
+
+    .summary {
+      background: #0f0f0f;
+      border: 1px solid #00ffcc55;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+
+    .summary div {
+      margin: 6px 0;
+      font-size: 14px;
+      color: #b0fefc;
+    }
+
+    .total {
+      font-size: 18px;
+      font-weight: bold;
+      color: #00ffee;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      background: #00ffee;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00ccaa;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Container utama form pembayaran -->
+  <div class="container">
+    <h2>Warkop Payment</h2>
+
+    <!-- Form input data pembayaran -->
+    <form id="formPembayaran">
+
+      <!-- Input nama pelanggan -->
+      <label>Nama Pelanggan</label>
+      <input type="text" id="nama" required>
+
+      <!-- Pilihan menu dengan nilai berupa nama dan harga -->
+      <label>Menu</label>
+      <select id="menu" onchange="hitungTotal()">
+        <option value="kopi=10000">☕ Kopi Hitam - 10K</option>
+        <option value="teh=8000">🍵 Teh Manis - 8K</option>
+        <option value="mie=12000">🍜 Mie Goreng - 12K</option>
+      </select>
+
+      <!-- Input jumlah pesanan -->
+      <label>Jumlah</label>
+      <input type="number" id="jumlah" value="1" min="1" onchange="hitungTotal()">
+
+      <!-- Pilihan metode pembayaran -->
+      <label>Metode Pembayaran</label>
+      <div class="payment-methods">
+        <div class="method" onclick="pilihMetode(this, 'Tunai')">
+          <img src="https://img.icons8.com/ios-filled/50/00ffee/cash-in-hand.png" alt="Tunai">
+          Tunai
+        </div>
+        <div class="method" onclick="pilihMetode(this, 'QRIS')">
+          <img src="https://img.icons8.com/ios-filled/50/00ffee/qr-code.png" alt="QRIS">
+          QRIS
+        </div>
+        <div class="method" onclick="pilihMetode(this, 'GoPay')">
+          <img src="https://img.icons8.com/color/48/00ffee/gopay.png" alt="GoPay">
+          GoPay
+        </div>
+      </div>
+
+      <!-- Ringkasan pesanan otomatis -->
+      <div class="summary">
+        <div>Menu: <span id="summaryMenu">Kopi</span></div>
+        <div>Jumlah: <span id="summaryJumlah">1</span></div>
+        <div>Metode: <span id="summaryMetode">-</span></div>
+        <div class="total">Total: Rp<span id="totalHarga">10000</span></div>
+      </div>
+
+      <!-- Tombol bayar -->
+      <button type="submit">💳 Bayar Sekarang</button>
+    </form>
+  </div>
+
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=WARKOP123456" class="qr-image" alt="QRIS">
+
+  <!-- Script interaktif untuk form -->
+  <script>
+    // Fungsi menghitung total berdasarkan menu dan jumlah
+    function hitungTotal() {
+      const [menu, harga] = document.getElementById('menu').value.split('=');
+      const jumlah = parseInt(document.getElementById('jumlah').value);
+      const total = harga * jumlah;
+
+      // Tampilkan hasil ke ringkasan
+      document.getElementById('summaryMenu').innerText = menu;
+      document.getElementById('summaryJumlah').innerText = jumlah;
+      document.getElementById('totalHarga').innerText = total;
+    }
+
+    // Fungsi memilih metode pembayaran
+    function pilihMetode(el, metode) {
+      // Hapus class 'selected' dari semua metode
+      document.querySelectorAll('.method').forEach(m => m.classList.remove('selected'));
+      el.classList.add('selected'); // Tandai pilihan yang dipilih
+      document.getElementById('summaryMetode').innerText = metode;
+    }
+
+    // Saat form disubmit, tampilkan alert
+    document.getElementById('formPembayaran').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('🚀 Pembayaran berhasil! Terima kasih.');
+    });
+
+    // Hitung total saat pertama kali halaman dibuka
+    hitungTotal();
+  </script>
+
+</body>
+</html>

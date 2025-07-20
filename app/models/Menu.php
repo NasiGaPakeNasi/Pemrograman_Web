@@ -3,22 +3,35 @@
 // Model untuk mengelola data menu
 
 // Fungsi untuk mendapatkan semua item menu dari database
-function getAllMenu($conn) {
-    $menuItems = []; // Inisialisasi array kosong untuk menampung item menu
-    // Query untuk memilih semua kolom dari tabel 'menu'
-    $query = "SELECT id_menu, nama_menu, harga, deskripsi, gambar FROM menu ORDER BY nama_menu ASC";
+// function getAllMenu($conn) {
+//     $menuItems = []; // Inisialisasi array kosong untuk menampung item menu
+//     // Query untuk memilih semua kolom dari tabel 'menu'
+//     $query = "SELECT id_menu, nama_menu, harga, deskripsi, gambar FROM menu ORDER BY nama_menu ASC";
     
-    // Jalankan query menggunakan koneksi yang diberikan
+//     // Jalankan query menggunakan koneksi yang diberikan
+//     $result = $conn->query($query);
+
+//     // Periksa jika query berhasil dan ada baris data yang ditemukan
+//     if ($result && $result->num_rows > 0) {
+//         // Ambil setiap baris data sebagai array asosiatif dan tambahkan ke $menuItems
+//         while($row = $result->fetch_assoc()) {
+//             $menuItems[] = $row;
+//         }
+//     }
+//     // Kembalikan array item menu
+//     return $menuItems;
+// }
+
+function getAllMenu($conn) {
+    $menuItems = [];
+    $query = "SELECT * FROM menu ORDER BY id_menu ASC"; // Ambil semua menu
     $result = $conn->query($query);
 
-    // Periksa jika query berhasil dan ada baris data yang ditemukan
     if ($result && $result->num_rows > 0) {
-        // Ambil setiap baris data sebagai array asosiatif dan tambahkan ke $menuItems
-        while($row = $result->fetch_assoc()) {
-            $menuItems[] = $row;
-        }
+        // Ambil semua baris hasil query sebagai array asosiatif
+        $menuItems = $result->fetch_all(MYSQLI_ASSOC);
     }
-    // Kembalikan array item menu
+
     return $menuItems;
 }
 
@@ -93,5 +106,7 @@ function deleteMenu($conn, $id_menu) {
         return false; // Gagal menghapus menu
     }
 }
+
+
 
 ?>

@@ -1,30 +1,25 @@
 <?php
 // app/config/database.php
-// Konfigurasi database pusat untuk aplikasi Warkop Bejo
 
-// Definisikan konstanta PROJECT_ROOT
-// Ini akan menjadi jalur absolut ke direktori utama proyek (Pemrograman_Web/)
-// dirname(__DIR__) dari app/config/ akan membawa kita ke app/, lalu dirname lagi ke root proyek
+// 1. Definisikan konstanta-konstanta dasar
 define('PROJECT_ROOT', dirname(dirname(__DIR__)));
+define('BASE_URL', 'http://localhost/Github/Pemrograman_Web/');
+// 2. Definisikan konstanta koneksi database
+define('DB_SERVER', 'localhost');
+define('DB_USERNAME', 'root');
+define('DB_PASSWORD', '');
+define('DB_NAME', 'warkop_bejo_db');
 
-// Definisikan konstanta koneksi database
-define('DB_SERVER', 'localhost');   // PERBAIKAN PENTING DI SINI: Pastikan ini 'localhost'
-define('DB_USERNAME', 'root');   // Username database Anda
-define('DB_PASSWORD', '');       // Password database Anda (kosong jika tidak ada)
-define('DB_NAME', 'warkop_bejo_db'); // Pastikan ini adalah nama database yang Anda gunakan
-
-// Buat koneksi ke database
+// 3. Buat koneksi
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
-// Cek koneksi
+// 4. Cek koneksi
 if ($conn->connect_error) {
-    // Jika koneksi gagal, hentikan eksekusi skrip dan tampilkan pesan error
+    // Tampilkan pesan error jika koneksi gagal
+    // Fungsi ini akan menghentikan eksekusi skrip selanjutnya
     die("Koneksi database gagal: " . $conn->connect_error);
 }
 
-// Set karakter set untuk koneksi (penting untuk mencegah masalah encoding)
+// Set karakter set untuk koneksi
 $conn->set_charset("utf8mb4");
-
-// Catatan: Variabel $conn dan konstanta PROJECT_ROOT akan tersedia
-// di file mana pun yang menyertakan database.php
 ?>

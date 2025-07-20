@@ -12,9 +12,11 @@ require_once __DIR__ . '/../includes/functions.php';
 // 1. Pastikan metode adalah POST.
 // 2. Pastikan ada data keranjang di sesi.
 // 3. Pastikan pengguna sudah login dan user_id tersimpan di sesi.
+// 4. Pastikan metode pembayaran telah dipilih.
 if ($_SERVER["REQUEST_METHOD"] !== "POST" 
     || !isset($_SESSION['checkout_cart']) 
-    || !isset($_SESSION['user_id'])) {
+    || !isset($_SESSION['user_id'])
+    || !isset($_POST['payment_method'])) { // Perbaikan: Tambahkan validasi payment_method
     
     // Jika salah satu kondisi tidak terpenuhi, redirect ke halaman yang sesuai.
     // Ini mencegah error fatal dan membuat alur lebih aman.
@@ -30,14 +32,31 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST"
 $user_id = $_SESSION['user_id'];
 $cart_items = $_SESSION['checkout_cart'];
 $total_belanja = (float)$_SESSION['checkout_total'];
-$uang_tunai = (float)$_POST['uang_tunai'];
-$kembalian = $uang_tunai - $total_belanja;
+$payment_method = htmlspecialchars($_POST['payment_method']); // Ambil metode pembayaran
 
-// Validasi dasar
-if ($uang_tunai < $total_belanja) {
-    header("Location: " . BASE_URL . "public/pembayaran.php?status=failed&message=" . urlencode("Uang tunai tidak cukup!"));
+$uang_tunai = 0; // Inisialisasi
+$kembalian = 0;  // Inisialisasi
+
+// Logika berdasarkan metode pembayaran
+if ($payment_method === 'Tunai') {
+    $uang_tunai = (float)$_POST['uang_tunai'];
+    $kembalian = $uang_tunai - $total_belanja;
+
+    // Validasi uang tunai hanya untuk metode "Tunai"
+    if ($uang_tunai < $total_belanja) {
+        header("Location: " . BASE_URL . "public/pembayaran.php?status=failed&message=" . urlencode("Uang tunai tidak cukup!"));
+        exit();
+    }
+} elseif ($payment_method === 'QRIS') {
+    // Untuk QRIS, asumsikan pembayaran pas atau akan divalidasi di luar sistem ini (misal via notifikasi payment gateway)
+    $uang_tunai = $total_belanja; // Anggap uang tunai yang diberikan sama dengan total
+    $kembalian = 0; // Kembalian nol untuk QRIS
+} else {
+    // Metode pembayaran tidak valid
+    header("Location: " . BASE_URL . "public/pembayaran.php?status=failed&message=" . urlencode("Metode pembayaran tidak valid!"));
     exit();
 }
+
 
 // Mulai transaksi database untuk memastikan semua query berhasil atau tidak sama sekali
 $conn->begin_transaction();
@@ -68,7 +87,8 @@ try {
     unset($_SESSION['checkout_total']);
 
     // Redirect ke halaman struk dengan ID pembelian yang baru
-    header("Location: " . BASE_URL . "public/struk.php?id_pembelian=" . $id_pembelian_baru);
+    // Kita bisa tambahkan parameter metode pembayaran ke struk jika diperlukan untuk tampilan
+    header("Location: " . BASE_URL . "public/struk.php?id_pembelian=" . $id_pembelian_baru . "&method=" . urlencode($payment_method));
     exit();
 
 } catch (mysqli_sql_exception $e) {

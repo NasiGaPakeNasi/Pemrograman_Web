@@ -143,3 +143,64 @@ Gunakan format `tipe: deskripsi` agar riwayat kita rapi. Ini contekannya:
 * **`style`**: Merapikan kode (spasi, titik koma, dll).
 * **`refactor`**: Menyusun ulang kode tanpa mengubah fungsi.
 * **`chore`**: Tugas lain (misal: menghapus file, update `.gitignore`).
+
+## Rancangan Database (ERD)
+
+Berikut adalah visualisasi hubungan antar tabel di database kita:
+
+```mermaid
+erDiagram
+    users {
+        int id PK
+        varchar username
+        varchar password
+        datetime created_at
+        tinyint is_admin
+    }
+
+    penjualan {
+        int id_penjualan PK
+        int user_id FK
+        datetime tanggal
+        varchar kasir
+        decimal total
+        decimal total_bayar
+    }
+
+    detail_penjualan {
+        int id_detail PK
+        int id_penjualan FK
+        int id_produk FK
+        varchar nama_produk
+        int qty
+        decimal subtotal
+    }
+
+    menu {
+        int id_menu PK
+        varchar nama_menu
+        decimal harga
+        text deskripsi
+        varchar gambar
+    }
+
+    -- Tabel yang mungkin redundan atau untuk keperluan lain
+    keranjang {
+        int id PK
+        varchar nama
+        decimal harga
+        int jumlah
+    }
+
+    purchases {
+        int id PK
+        int user_id FK
+        date tanggal
+        longtext items
+    }
+
+    users ||--o{ penjualan : "melakukan"
+    penjualan ||--|{ detail_penjualan : "memiliki"
+    menu ||--o{ detail_penjualan : "terdiri_dari"
+    users ||--o{ purchases : "memiliki_riwayat"
+```
