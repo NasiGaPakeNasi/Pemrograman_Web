@@ -158,49 +158,31 @@ erDiagram
         tinyint is_admin
     }
 
-    penjualan {
-        int id_penjualan PK
+    orders {
+        int order_id PK
         int user_id FK
-        datetime tanggal
-        varchar kasir
-        decimal total
-        decimal total_bayar
+        datetime order_date
+        decimal total_amount
+        varchar status
     }
 
-    detail_penjualan {
-        int id_detail PK
-        int id_penjualan FK
-        int id_produk FK
-        varchar nama_produk
-        int qty
-        decimal subtotal
+    order_items {
+        int item_id PK
+        int order_id FK
+        int menu_id FK
+        int quantity
+        decimal price_per_item
     }
 
     menu {
-        int id_menu PK
-        varchar nama_menu
-        decimal harga
-        text deskripsi
-        varchar gambar
+        int menu_id PK
+        varchar menu_name
+        decimal price
+        text description
+        varchar image_path
     }
 
-    -- Tabel yang mungkin redundan atau untuk keperluan lain
-    keranjang {
-        int id PK
-        varchar nama
-        decimal harga
-        int jumlah
-    }
-
-    purchases {
-        int id PK
-        int user_id FK
-        date tanggal
-        longtext items
-    }
-
-    users ||--o{ penjualan : "melakukan"
-    penjualan ||--|{ detail_penjualan : "memiliki"
-    menu ||--o{ detail_penjualan : "terdiri_dari"
-    users ||--o{ purchases : "memiliki_riwayat"
+    users ||--o{ orders : "places"
+    orders ||--|{ order_items : "contains"
+    menu ||--o{ order_items : "is"
 ```
